@@ -13,11 +13,13 @@ schedulers.
 
 | Path | What it is |
 |---|---|
-| `notebooks/Danuja_20251143_CW1_main.ipynb` | CW1 implementation, executed |
-| `notebooks/Danuja_20251143_CW1_EDA.ipynb` | Exploratory data analysis, executed |
-| `reports/PartA_ProjectProposal.docx` | Part A project proposal |
-| `reports/CW1_TechnicalReport.docx` | CW1 technical report |
-| `reports/CW2_CriticalReport.docx` | CW2 critical and ethical report |
+| `notebooks/CW1_20251143_main.ipynb` | CW1 implementation, executed |
+| `notebooks/CW1_20251143_EDA.ipynb` | Exploratory data analysis, executed |
+| `reports/CW1_20251143_PartA_ProjectProposal.pdf` | Part A project proposal |
+| `reports/CW1_20251143_TechnicalReport.pdf` | CW1 technical report |
+| `reports/CW2_20251143_Report.pdf` | CW2 critical and ethical report |
+| `reports/*.docx` | Editable Word source for the three reports above |
+| `video/CW1_20251143_Demo.mp4` | Demonstration video |
 | `data/dispatch-lab-data.zip` | Derived CSVs, cost tables, cached results, analysis package |
 | `docs/` | Companion web app, published via GitHub Pages |
 
