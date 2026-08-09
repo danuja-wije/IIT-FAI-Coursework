@@ -560,8 +560,8 @@
         </div>
 
         <div style="background:#FBF9F5;border:1px solid #E2DCD2;border-radius:7px;padding:16px 18px 12px;margin-bottom:20px">
-          <div style="font:600 14px/1.3 'IBM Plex Sans',sans-serif">Thirty days of system cost</div>
-          <div style="font-size:12px;line-height:1.5;color:#6E6459;margin-top:3px">3 February – 4 March 2026. The area is cumulative cost of what ran; the bars beneath are each day's measured peak. The single marked point is the one day re-solved so far — its gap is the only computed one.</div>
+          <div style="font:600 14px/1.3 'IBM Plex Sans',sans-serif">Thirty days of system energy</div>
+          <div style="font-size:12px;line-height:1.5;color:#6E6459;margin-top:3px">3 February – 4 March 2026. The area is cumulative energy delivered; the bars beneath are each day's measured peak. The single marked point is the one day re-solved so far — its cost gap is the only computed one.</div>
           <svg viewBox="0 0 1000 320" style="width:100%;height:auto;display:block;margin-top:8px">
             <sc-for list="{{ cumGrid }}" as="g" hint-placeholder-count="4">
               <line x1="62" x2="946" y1="{{ g.y }}" y2="{{ g.y }}" stroke="#E7E1D7" stroke-width="1"></line>
