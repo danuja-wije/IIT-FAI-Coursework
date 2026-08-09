@@ -2,7 +2,7 @@
 
 Danuja Wijerathna · 20251143
 
-## Dispatch Lab: could the Sri Lankan grid have been scheduled better?
+## Day-ahead unit commitment for the Sri Lankan power grid
 
 Daily unit commitment for the Ceylon Electricity Board, rebuilt from the regulator's published
 record. Four AI methods answer the same question on the same days: a knowledge graph with a rule
@@ -15,9 +15,9 @@ schedulers.
 |---|---|
 | `notebooks/Danuja_20251143_CW1_main.ipynb` | CW1 implementation, executed |
 | `notebooks/Danuja_20251143_CW1_EDA.ipynb` | Exploratory data analysis, executed |
-| `reports/PartA_ProjectProposal.*` | Part A project proposal |
-| `reports/CW1_TechnicalReport.*` | CW1 technical report |
-| `reports/CW2_CriticalReport.*` | CW2 critical and ethical report |
+| `reports/PartA_ProjectProposal.docx` | Part A project proposal |
+| `reports/CW1_TechnicalReport.docx` | CW1 technical report |
+| `reports/CW2_CriticalReport.docx` | CW2 critical and ethical report |
 | `data/dispatch-lab-data.zip` | Derived CSVs, cost tables, cached results, analysis package |
 | `docs/` | Companion web app, published via GitHub Pages |
 
