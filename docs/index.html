@@ -132,7 +132,7 @@
         </sc-if>
         <sc-if value="{{ noIntervals }}" hint-placeholder-val="{{ false }}">
           <p style="font:400 26px/1.4 'IBM Plex Serif',serif;max-width:23em;margin:14px 0 4px;text-wrap:pretty">
-            On {{ dateLong }} Sri Lanka generated <span style="font-weight:600">{{ rrCo2 }}</span> of CO₂ at a cost of <span style="font-weight:600">{{ rrCost }}</span>. Whether that was avoidable is not yet answerable for this day.
+            On {{ dateLong }} Sri Lanka delivered <span style="font-weight:600">{{ rrEnergy }}</span>, peaking at <span style="font-weight:600">{{ rrPeak }}</span>. What that cost, and whether it was avoidable, is not answerable for this day.
           </p>
         </sc-if>
         <p style="font-size:13px;line-height:1.6;color:#6E6459;max-width:44em;margin:0 0 22px">
@@ -167,10 +167,11 @@
               <div style="width:240px;flex:none">
                 <div style="font:400 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#9A9086;margin-bottom:8px">Known for this day</div>
                 <div style="display:grid;grid-template-columns:1fr auto;gap:7px 12px;font-size:12px;line-height:1.4;color:#6E6459">
-                  <span>Cost of what ran</span><span style="font-family:'IBM Plex Mono',monospace;color:#1B1A17">{{ rrCost }}</span>
-                  <span>CO₂</span><span style="font-family:'IBM Plex Mono',monospace;color:#1B1A17">{{ rrCo2 }}</span>
+                  <span>Energy delivered</span><span style="font-family:'IBM Plex Mono',monospace;color:#1B1A17">{{ rrEnergy }}</span>
+                  <span>Mean demand</span><span style="font-family:'IBM Plex Mono',monospace;color:#1B1A17">{{ rrMean }}</span>
                   <span>Peak</span><span style="font-family:'IBM Plex Mono',monospace;color:#1B1A17">{{ rrPeak }}</span>
-                  <span>Optimal cost</span><span style="color:#9A9086">not computed</span>
+                  <span>Cost</span><span style="color:#9A9086">not computed</span>
+                  <span>CO₂</span><span style="color:#9A9086">not computed</span>
                   <span>Gap</span><span style="color:#9A9086">not computed</span>
                 </div>
                 <div style="font-size:11px;line-height:1.55;color:#9A9086;margin-top:12px">Peak MW is measured. Cost and CO₂ are <span style="font-family:'IBM Plex Mono',monospace">≈</span> figures. A gap requires re-solving the day, which requires its interval data.</div>
@@ -1062,8 +1063,8 @@ class Component extends DCLogic {
         pick: () => this.setState({ date: r.date, dateOpen: false, hover: null })
       })),
       hasIntervals: hasInt, noIntervals: !hasInt,
-      rrCost: this.fmt(rr.meanMw * 24) + ' MWh',
-      rrCo2: this.fmt(rr.meanMw) + ' MW mean', rrPeak: this.fmt(rr.peakMw) + ' MW',
+      rrEnergy: this.fmt(rr.meanMw * 24) + ' MWh',
+      rrMean: this.fmt(rr.meanMw) + ' MW', rrPeak: this.fmt(rr.peakMw) + ' MW',
       headCostPct: costPct.toFixed(1) + '%',
       headCo2: this.fmt(sa.co2 - so.co2) + ' t',
       headSub: hasInt
