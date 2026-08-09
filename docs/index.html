@@ -855,7 +855,7 @@ class Component extends DCLogic {
 
   // ---------- solver ----------
   solve(o) {
-    const D = this.data, A = D.assumptions, N = 96, dem = D.day.demandMw, act = D.day.schedules.actual;
+    const D = this.data, A = D.assumptions, N = 96, _d0 = this.dayFor(this.state.date), dem = _d0.demandMw, act = _d0.schedules.actual;
     const excl = o.excluded, mult = f => (o.mult[f] != null ? o.mult[f] : 1);
     const byFuel = {}; D.fuels.forEach(f => byFuel[f] = new Array(N).fill(0));
     const fixed = new Array(N).fill(0);
@@ -943,6 +943,14 @@ class Component extends DCLogic {
     this._loop = requestAnimationFrame(step);
   }
 
+    // Every exported day lives in `days`, keyed by date; `day` is the one the app
+    // opens on. Selecting a date that was solved swaps the whole screen onto it,
+    // and selecting one that was not falls back to the daily-summary view.
+    dayFor(date) {
+      const all = this.data.days || {};
+      return all[date] || this.data.day;
+    }
+
   renderVals() {
     const P = this.props;
     const nav = { 1: 0, 2: 52, 3: 104, 4: 156, 5: 208, 6: 260 };
@@ -963,7 +971,7 @@ class Component extends DCLogic {
     };
     if (!s.ready) return base;
 
-    const D = this.data, N = 96, day = D.day, dem = day.demandMw;
+    const D = this.data, N = 96, day = this.dayFor(s.date), dem = day.demandMw;
     const mark = P.markIllustrative === false ? '' : '≈';
     const W = 1000, H = 400, pad = { l: 58, r: 16, t: 24, b: 40, max: 3300 };
     const g = this.geom(W, H, pad);
@@ -1143,7 +1151,8 @@ class Component extends DCLogic {
     }
 
     if (s.screen === 3) {
-      const cv = D.convergence, n = s.iter + 1, last = cv.length - 1;
+      const cv = (day.convergence && day.convergence.length) ? day.convergence : D.convergence;
+      const n = s.iter + 1, last = cv.length - 1;
       // The axis is derived from the recorded run, not fixed. It used to be hard-coded to a
       // range from an earlier sample, and every point in the real trace sat above the top of
       // the chart, so nothing was visible.
@@ -1188,7 +1197,8 @@ class Component extends DCLogic {
       const periodPeak = Math.max(...R.map(d => d.peakMw));
       const covered = R.filter(d => d.hasIntervals).length;
       const dayGap = sa.cost - so.cost;
-      const ruleCounts = D.gapDecisions.reduce((a, d) => { a[d.rule] = (a[d.rule] || 0) + 1; return a; }, {});
+      const gapDec = (day.gapDecisions && day.gapDecisions.length) ? day.gapDecisions : D.gapDecisions;
+      const ruleCounts = gapDec.reduce((a, d) => { a[d.rule] = (a[d.rule] || 0) + 1; return a; }, {});
       const topRule = Object.entries(ruleCounts).sort((a, b) => b[1] - a[1])[0] || ['', 0];
       Object.assign(out, {
         gapTiles: [
@@ -1202,9 +1212,9 @@ class Component extends DCLogic {
         cumTicks: [0, 7, 14, 21, 29].map(i => ({ x: cgx(i), label: R[i].date.slice(5).replace('-', '/') })),
         solvedX: cgx(solvedI), solvedY: cgy(cums[solvedI]),
         cumEndY: cgy(cums[n - 1]) + 4, cumEndLabel: this.fmt(totalEnergy) + ' MWh',
-        decShare: topRule[0] ? topRule[1] + ' of ' + D.gapDecisions.length : '0', dayGapRsM: this.fmt(dayGap),
+        decShare: topRule[0] ? topRule[1] + ' of ' + gapDec.length : '0', dayGapRsM: this.fmt(dayGap),
         topRuleName: topRule[0] || 'none',
-        decisions: D.gapDecisions.map((d, i) => ({
+        decisions: gapDec.map((d, i) => ({
           rank: i + 1, time: d.time, plant: d.plant, rule: d.rule,
           headline: d.plant + ' · ' + d.rule.replace(/_/g, ' '),
           detail: d.detail || '', interval: 'interval ' + d.interval,
