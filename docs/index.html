@@ -933,8 +933,9 @@ class Component extends DCLogic {
       acc += dt * (this.state.speed * 0.09);
       if (acc >= 16) {
         const adv = Math.max(1, Math.round(acc / 16)); acc = 0;
-        const n = Math.min(399, this.state.iter + adv);
-        this.setState({ iter: n, running: n < 399 });
+        const lastIdx = (this.data.convergence || []).length - 1 || 399;
+        const n = Math.min(lastIdx, this.state.iter + adv);
+        this.setState({ iter: n, running: n < lastIdx });
       }
       this._loop = requestAnimationFrame(step);
     };
@@ -1141,21 +1142,27 @@ class Component extends DCLogic {
     }
 
     if (s.screen === 3) {
-      const cv = D.convergence, n = s.iter + 1, cmin = 665, cmax = 775;
-      const cg = { x: i => 66 + (i / 399) * 918, y: v => 272 - ((v - cmin) / (cmax - cmin)) * 248 };
+      const cv = D.convergence, n = s.iter + 1, last = cv.length - 1;
+      // The axis is derived from the recorded run, not fixed. It used to be hard-coded to a
+      // range from an earlier sample, and every point in the real trace sat above the top of
+      // the chart, so nothing was visible.
+      const allVals = cv.reduce((a, p) => { a.push(p.current, p.best); return a; }, []);
+      const lo = Math.min(...allVals), hi = Math.max(...allVals);
+      const pad = (hi - lo) * 0.08 || 1, cmin = lo - pad, cmax = hi + pad;
+      const cg = { x: i => 66 + (i / last) * 918, y: v => 272 - ((v - cmin) / (cmax - cmin)) * 248 };
       const mk = (key, count) => { let d = 'M' + cg.x(0) + ' ' + cg.y(cv[0][key]); for (let i = 1; i < count; i++) d += 'L' + cg.x(i).toFixed(1) + ' ' + cg.y(cv[i][key]).toFixed(1); return d; };
-      const worse = []; for (let i = 0; i < n; i++) if (cv[i].acceptedWorse) worse.push({ x: cg.x(i), y: cg.y(cv[i].cost) });
-      const prog = (cv[0].best - cv[s.iter].best) / (cv[0].best - cv[399].best);
+      const worse = []; for (let i = 0; i < n; i++) if (cv[i].acceptedWorse) worse.push({ x: cg.x(i), y: cg.y(cv[i].current) });
+      const prog = (cv[0].best - cv[s.iter].best) / (cv[0].best - cv[last].best || 1);
       const blend = {}; D.fuels.forEach(f => blend[f] = act.byFuel[f].map((v, i) => v + (opt.byFuel[f][i] - v) * prog));
       const srg = this.geom(240, 130, { l: 2, r: 2, t: 4, b: 8, max: 3300 });
       Object.assign(out, {
-        iterLabel: s.iter + ' / 399', runLabel: s.running ? 'Pause' : (s.iter >= 399 ? 'Replay' : 'Run'),
-        toggleRun: () => { if (s.iter >= 399 && !s.running) { this.setState({ iter: 0, running: true }, () => this.runLoop()); return; } const r = !s.running; this.setState({ running: r }, () => { if (r) this.runLoop(); }); },
-        stepOne: () => this.setState({ running: false, iter: Math.min(399, s.iter + 1) }),
+        iterLabel: cv[s.iter].i + ' / ' + cv[last].i, runLabel: s.running ? 'Pause' : (s.iter >= last ? 'Replay' : 'Run'),
+        toggleRun: () => { if (s.iter >= last && !s.running) { this.setState({ iter: 0, running: true }, () => this.runLoop()); return; } const r = !s.running; this.setState({ running: r }, () => { if (r) this.runLoop(); }); },
+        stepOne: () => this.setState({ running: false, iter: Math.min(last, s.iter + 1) }),
         resetRun: () => this.setState({ running: false, iter: 0 }),
         speed: s.speed, speedLabel: s.speed + '×', setSpeed: e => this.setState({ speed: +e.target.value }),
-        cvGrid: [680, 710, 740, 770].map(v => ({ y: cg.y(v), ty: cg.y(v) + 3.5, label: this.fmt(v) })),
-        cvGhost: mk('cost', 400), cvPath: mk('cost', n), cvBest: mk('best', n), cvWorse: worse,
+        cvGrid: [0, 0.25, 0.5, 0.75, 1].map(f => { const v = cmin + f * (cmax - cmin); return { y: cg.y(v), ty: cg.y(v) + 3.5, label: this.fmt(v, 0) }; }),
+        cvGhost: mk('current', cv.length), cvPath: mk('current', n), cvBest: mk('best', n), cvWorse: worse,
         cvHeadX: cg.x(s.iter), cvHeadY: cg.y(cv[s.iter].best),
         tempPct: cv[s.iter].temperature * 100, tempLabel: cv[s.iter].temperature.toFixed(3),
         bestCost: this.fmt(cv[s.iter].best, 1), bestDelta: '−' + this.fmt(cv[0].best - cv[s.iter].best, 1) + ' Rs m',
