@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+<script src="./dispatch-data.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; background: #F4F1EC; }
+  body { font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #1B1A17; -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums; }
+  * { box-sizing: border-box; }
+  a { color: #1F5E86; text-decoration: none; border-bottom: 1px solid rgba(31,94,134,.35); }
+  a:hover { color: #123F5B; border-bottom-color: #123F5B; }
+  ::selection { background: #E9DCC2; }
+  input[type=range] { -webkit-appearance: none; appearance: none; background: transparent; height: 18px; display: block; margin-left: 0; margin-right: 0; box-sizing: border-box; }
+  input[type=range]::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: #CDC4B4; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #1B1A17; margin-top: -5px; cursor: grab; }
+  input[type=range]::-moz-range-track { height: 4px; border-radius: 2px; background: #CDC4B4; }
+  input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border: 0; border-radius: 50%; background: #1B1A17; cursor: grab; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: #D9D2C6; border-radius: 6px; border: 3px solid #F4F1EC; }
+</style>
+</helmet>
+
+<div style="height:100vh;display:flex;flex-direction:column;background:#F4F1EC;overflow:hidden">
+
+  <header style="display:flex;align-items:center;gap:24px;padding:0 20px;height:58px;background:#FBF9F5;border-bottom:1px solid #E2DCD2;flex:none">
+    <div style="display:flex;align-items:center;gap:11px">
+      <svg viewBox="0 0 54 22" style="width:54px;height:22px;display:block;overflow:visible">
+        <path d="{{ sparkFill }}" fill="#E2DCD2"></path>
+        <path d="{{ sparkPath }}" fill="none" stroke="#1B1A17" stroke-width="1.4" stroke-linejoin="round"></path>
+        <circle cx="{{ sparkPeakX }}" cy="{{ sparkPeakY }}" r="2.1" fill="#B4653C"></circle>
+      </svg>
+      <div style="font:600 16px/1 'IBM Plex Sans',sans-serif;letter-spacing:-.01em">Dispatch&nbsp;Lab</div>
+      <div style="font:400 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#8C8378;border:1px solid #E2DCD2;border-radius:3px;padding:4px 6px">RETROSPECTIVE · NOT LIVE</div>
+    </div>
+
+    <div style="flex:1"></div>
+
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font:400 11px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;color:#8C8378;text-transform:uppercase">Viewing as</span>
+      <div style="position:relative;display:flex;gap:2px;background:#F0EBE2;border:1px solid #E2DCD2;border-radius:6px;padding:3px">
+        <div style="position:absolute;top:3px;left:3px;height:26px;width:78px;background:#FFFFFF;border:1px solid #DAD2C5;border-radius:4px;box-shadow:0 1px 2px rgba(27,26,23,.06);transform:translateX({{ roleX }}px);transition:transform .22s cubic-bezier(.4,0,.2,1)"></div>
+        <button onClick="{{ setAnalyst }}" style="position:relative;z-index:1;border:0;background:none;cursor:pointer;font:500 12px/26px 'IBM Plex Sans',sans-serif;color:#1B1A17;padding:0;width:78px;height:26px">Analyst</button>
+        <button onClick="{{ setRegulator }}" style="position:relative;z-index:1;border:0;background:none;cursor:pointer;font:500 12px/26px 'IBM Plex Sans',sans-serif;color:#1B1A17;padding:0;width:78px;height:26px">Regulator</button>
+        <button onClick="{{ setPlanner }}" style="position:relative;z-index:1;border:0;background:none;cursor:pointer;font:500 12px/26px 'IBM Plex Sans',sans-serif;color:#1B1A17;padding:0;width:78px;height:26px">Planner</button>
+        <button onClick="{{ setPublic }}" style="position:relative;z-index:1;border:0;background:none;cursor:pointer;font:500 12px/26px 'IBM Plex Sans',sans-serif;color:#1B1A17;padding:0;width:78px;height:26px">Public</button>
+      </div>
+    </div>
+  </header>
+
+  <div style="flex:1;display:flex;min-height:0">
+
+    <nav style="width:216px;flex:none;background:#FBF9F5;border-right:1px solid #E2DCD2;padding:14px 0;position:relative;overflow-y:auto">
+      <div style="position:absolute;left:0;top:14px;width:2px;height:52px;background:#1B1A17;transform:translateY({{ navY }}px);transition:transform .24s cubic-bezier(.4,0,.2,1)"></div>
+      <button onClick="{{ go1 }}" style="display:block;width:100%;text-align:left;border:0;background:none;cursor:pointer;padding:9px 16px;height:52px;font-family:'IBM Plex Sans',sans-serif">
+        <div style="font:500 13px/1.3 'IBM Plex Sans',sans-serif;color:#1B1A17">01 · The Day</div>
+        <div style="font-size:11px;line-height:1.3;color:#9A9086;margin-top:2px">Orientation · everyone</div>
+      </button>
+      <button onClick="{{ go2 }}" style="display:block;width:100%;text-align:left;border:0;background:none;cursor:pointer;padding:9px 16px;height:52px;font-family:'IBM Plex Sans',sans-serif">
+        <div style="font:500 13px/1.3 'IBM Plex Sans',sans-serif;color:#1B1A17">02 · Rule Sandbox</div>
+        <div style="font-size:11px;line-height:1.3;color:#9A9086;margin-top:2px">Analyst · planner</div>
+      </button>
+      <button onClick="{{ go3 }}" style="display:block;width:100%;text-align:left;border:0;background:none;cursor:pointer;padding:9px 16px;height:52px;font-family:'IBM Plex Sans',sans-serif">
+        <div style="font:500 13px/1.3 'IBM Plex Sans',sans-serif;color:#1B1A17">03 · Watch It Search</div>
+        <div style="font-size:11px;line-height:1.3;color:#9A9086;margin-top:2px">How the answer is found</div>
+      </button>
+      <button onClick="{{ go4 }}" style="display:block;width:100%;text-align:left;border:0;background:none;cursor:pointer;padding:9px 16px;height:52px;font-family:'IBM Plex Sans',sans-serif">
+        <div style="font:500 13px/1.3 'IBM Plex Sans',sans-serif;color:#1B1A17">04 · The Gap</div>
+        <div style="font-size:11px;line-height:1.3;color:#9A9086;margin-top:2px">Audit trail · regulator</div>
+      </button>
+      <button onClick="{{ go5 }}" style="display:block;width:100%;text-align:left;border:0;background:none;cursor:pointer;padding:9px 16px;height:52px;font-family:'IBM Plex Sans',sans-serif">
+        <div style="font:500 13px/1.3 'IBM Plex Sans',sans-serif;color:#1B1A17">05 · Case Studies</div>
+        <div style="font-size:11px;line-height:1.3;color:#9A9086;margin-top:2px">Plain language · public</div>
+      </button>
+      <button onClick="{{ go6 }}" style="display:block;width:100%;text-align:left;border:0;background:none;cursor:pointer;padding:9px 16px;height:52px;font-family:'IBM Plex Sans',sans-serif">
+        <div style="font:500 13px/1.3 'IBM Plex Sans',sans-serif;color:#1B1A17">06 · Method</div>
+        <div style="font-size:11px;line-height:1.3;color:#9A9086;margin-top:2px">Assumptions · planner</div>
+      </button>
+
+      <div style="margin:18px 16px 0;padding-top:14px;border-top:1px solid #E9E3D9">
+        <div style="font:400 10px/1.5 'IBM Plex Mono',monospace;letter-spacing:.08em;color:#9A9086;text-transform:uppercase;margin-bottom:7px">Study day</div>
+        <div style="display:flex;align-items:stretch;gap:4px">
+          <button onClick="{{ prevDay }}" style="border:1px solid #E2DCD2;background:#F3EFE7;border-radius:4px;cursor:pointer;width:24px;font-size:12px;line-height:1;color:#6E6459;flex:none">‹</button>
+          <button onClick="{{ toggleDatePicker }}" style="flex:1;border:1px solid #DAD2C5;background:#FFFFFF;border-radius:4px;cursor:pointer;padding:6px 8px;text-align:left">
+            <div style="font:500 12.5px/1.3 'IBM Plex Sans',sans-serif;color:#1B1A17">{{ dateShort }}</div>
+            <div style="font:400 10px/1.3 'IBM Plex Mono',monospace;color:{{ dateBadgeColor }};margin-top:2px">{{ dateBadge }}</div>
+          </button>
+          <button onClick="{{ nextDay }}" style="border:1px solid #E2DCD2;background:#F3EFE7;border-radius:4px;cursor:pointer;width:24px;font-size:12px;line-height:1;color:#6E6459;flex:none">›</button>
+        </div>
+        <div style="font-size:11px;line-height:1.5;color:#9A9086;margin-top:6px">Peak {{ peakLabel }}</div>
+
+        <sc-if value="{{ dateOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:8px;border:1px solid #E2DCD2;border-radius:5px;overflow:hidden;background:#FFFFFF">
+            <div style="padding:7px 9px;background:#F3EFE7;border-bottom:1px solid #E2DCD2;font:400 10px/1.4 'IBM Plex Mono',monospace;letter-spacing:.07em;text-transform:uppercase;color:#8C8378">30 days · ≈ Rs m</div>
+            <div style="max-height:230px;overflow-y:auto">
+              <sc-for list="{{ dateRows }}" as="r" hint-placeholder-count="8">
+                <button onClick="{{ r.pick }}" style="display:flex;width:100%;align-items:center;gap:7px;border:0;border-bottom:1px solid #F1ECE3;background:{{ r.bg }};cursor:pointer;padding:6px 9px;text-align:left">
+                  <span style="font:400 11px/1 'IBM Plex Mono',monospace;color:#1B1A17;flex:1">{{ r.date }}</span>
+                  <span style="width:26px;height:5px;border-radius:2px;background:#EDE7DD;overflow:hidden;flex:none"><span style="display:block;height:5px;background:{{ r.barColor }};width:{{ r.barW }}%"></span></span>
+                  <span style="font:400 10.5px/1 'IBM Plex Mono',monospace;color:#6E6459;width:32px;text-align:right">{{ r.gap }}</span>
+                  <span style="font-size:10px;color:{{ r.dotColor }};width:8px;text-align:center">{{ r.dot }}</span>
+                </button>
+              </sc-for>
+            </div>
+            <div style="padding:8px 9px;font-size:10.5px;line-height:1.5;color:#8C8378;background:#F8F5EF">● marks a day with the full 96-interval archive loaded in this build. The other 29 carry daily summaries only.</div>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="margin:14px 16px 0;padding:9px 10px;background:#F3EEE3;border:1px solid #E9E0CE;border-radius:5px">
+        <div style="font-size:11px;line-height:1.45;color:#7A6E5C"><span style="font-family:'IBM Plex Mono',monospace">≈</span> marks a figure that rests on a stated assumption rather than a measurement.</div>
+      </div>
+    </nav>
+
+    <main style="flex:1;min-width:0;overflow-y:auto">
+
+      <sc-if value="{{ isDay }}" hint-placeholder-val="{{ true }}">
+      <section data-screen-label="01 The Day" style="padding:26px 30px 70px;max-width:1180px">
+        <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#9A9086">Screen 01 — orientation</div>
+        <sc-if value="{{ hasIntervals }}" hint-placeholder-val="{{ true }}">
+          <p style="font:400 26px/1.4 'IBM Plex Serif',serif;max-width:23em;margin:14px 0 4px;text-wrap:pretty">
+            On {{ dateLong }} the schedule that ran cost <span style="color:#B4653C;font-weight:600">{{ headCostPct }} more</span> and emitted <span style="color:#B4653C;font-weight:600">{{ headCo2 }} more CO₂</span> than a cost-optimal schedule serving the same demand.
+          </p>
+        </sc-if>
+        <sc-if value="{{ noIntervals }}" hint-placeholder-val="{{ false }}">
+          <p style="font:400 26px/1.4 'IBM Plex Serif',serif;max-width:23em;margin:14px 0 4px;text-wrap:pretty">
+            On {{ dateLong }} Sri Lanka generated <span style="font-weight:600">{{ rrCo2 }}</span> of CO₂ at a cost of <span style="font-weight:600">{{ rrCost }}</span>. Whether that was avoidable is not yet answerable for this day.
+          </p>
+        </sc-if>
+        <p style="font-size:13px;line-height:1.6;color:#6E6459;max-width:44em;margin:0 0 22px">
+          {{ headSub }} Cost and CO₂ are <span style="font-family:'IBM Plex Mono',monospace">≈</span> figures from the assumption table on <a href="#" onClick="{{ go6 }}">Method</a>.
+        </p>
+
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#E2DCD2;border:1px solid #E2DCD2;border-radius:7px;overflow:hidden;margin-bottom:26px">
+          <sc-for list="{{ tiles }}" as="t" hint-placeholder-count="4">
+            <div style="background:#FBF9F5;padding:14px 16px 15px">
+              <div style="font:400 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#9A9086;display:flex;gap:5px;align-items:center">{{ t.label }}<span style="color:#B08D4A">{{ t.mark }}</span></div>
+              <div style="display:flex;align-items:baseline;gap:5px;margin-top:9px">
+                <span style="font:500 27px/1 'IBM Plex Sans',sans-serif;letter-spacing:-.02em">{{ t.value }}</span>
+                <span style="font-size:12px;color:#8C8378">{{ t.unit }}</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:9px">
+                <span style="font:500 12px/1 'IBM Plex Mono',monospace;color:{{ t.color }}">{{ t.delta }}</span>
+                <span style="font-size:11px;color:#9A9086">{{ t.deltaNote }}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ noIntervals }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#FBF9F5;border:1px solid #E2DCD2;border-radius:7px;padding:22px 24px;margin-bottom:18px">
+            <div style="display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap">
+              <div style="flex:1;min-width:300px">
+                <div style="font:600 15px/1.3 'IBM Plex Sans',sans-serif">No interval detail loaded for this day</div>
+                <p style="font-size:13px;line-height:1.65;color:#6E6459;margin:7px 0 0;max-width:44em">The figures above come from the daily summary. The stacked schedule, the decision ranking and the sandbox all need the 96-interval archive, which this build ships for one day only — 4 March 2026.</p>
+                <p style="font-size:13px;line-height:1.65;color:#6E6459;margin:10px 0 0;max-width:44em">The archive itself runs from 2016 to 2026 at 15-minute resolution. Loading another day is a data question, not a design one: drop that day's <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">day.demandMw</span> and <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">schedules</span> arrays into the dataset and every screen here fills in.</p>
+                <button onClick="{{ loadStudyDay }}" style="border:1px solid #1B1A17;background:#1B1A17;color:#FBF9F5;border-radius:5px;cursor:pointer;font:500 12px/1 'IBM Plex Sans',sans-serif;padding:10px 15px;margin-top:16px">Go to 4 March 2026 →</button>
+              </div>
+              <div style="width:240px;flex:none">
+                <div style="font:400 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#9A9086;margin-bottom:8px">Known for this day</div>
+                <div style="display:grid;grid-template-columns:1fr auto;gap:7px 12px;font-size:12px;line-height:1.4;color:#6E6459">
+                  <span>Cost of what ran</span><span style="font-family:'IBM Plex Mono',monospace;color:#1B1A17">{{ rrCost }}</span>
+                  <span>CO₂</span><span style="font-family:'IBM Plex Mono',monospace;color:#1B1A17">{{ rrCo2 }}</span>
+                  <span>Peak</span><span style="font-family:'IBM Plex Mono',monospace;color:#1B1A17">{{ rrPeak }}</span>
+                  <span>Optimal cost</span><span style="color:#9A9086">not computed</span>
+                  <span>Gap</span><span style="color:#9A9086">not computed</span>
+                </div>
+                <div style="font-size:11px;line-height:1.55;color:#9A9086;margin-top:12px">Peak MW is measured. Cost and CO₂ are <span style="font-family:'IBM Plex Mono',monospace">≈</span> figures. A gap requires re-solving the day, which requires its interval data.</div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ hasIntervals }}" hint-placeholder-val="{{ true }}">
+        <div style="background:#FBF9F5;border:1px solid #E2DCD2;border-radius:7px;padding:18px 20px 14px;margin-bottom:18px">
+          <div style="display:flex;align-items:flex-start;gap:16px;margin-bottom:6px">
+            <div>
+              <div style="font:600 15px/1.3 'IBM Plex Sans',sans-serif">What actually ran</div>
+              <div style="font-size:12px;line-height:1.5;color:#6E6459;margin-top:3px;max-width:52em">Generation by fuel, stacked to meet the demand line. The oil wedge on top is the expensive part — it is what the optimiser tries to shrink.</div>
+            </div>
+            <div style="flex:1"></div>
+            <div style="display:flex;gap:2px;background:#F0EBE2;border:1px solid #E2DCD2;border-radius:5px;padding:2px">
+              <button onClick="{{ modeStacked }}" style="border:0;background:{{ mStackBg }};cursor:pointer;font:500 11px/22px 'IBM Plex Sans',sans-serif;padding:0 10px;border-radius:3px;color:#1B1A17">Stacked</button>
+              <button onClick="{{ modeMulti }}" style="border:0;background:{{ mMultiBg }};cursor:pointer;font:500 11px/22px 'IBM Plex Sans',sans-serif;padding:0 10px;border-radius:3px;color:#1B1A17">Three-up</button>
+              <button onClick="{{ modeDiff }}" style="border:0;background:{{ mDiffBg }};cursor:pointer;font:500 11px/22px 'IBM Plex Sans',sans-serif;padding:0 10px;border-radius:3px;color:#1B1A17">Difference</button>
+            </div>
+          </div>
+
+          <svg viewBox="0 0 1000 400" style="width:100%;height:auto;display:block;cursor:crosshair" onMouseMove="{{ onHover }}" onMouseLeave="{{ offHover }}">
+            <defs>
+              <pattern id="pt0" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="rgba(255,255,255,.42)" stroke-width="2.4"></line></pattern>
+              <pattern id="pt1" width="6" height="6" patternUnits="userSpaceOnUse"><line x1="0" y1="1" x2="6" y2="1" stroke="rgba(255,255,255,.34)" stroke-width="1.6"></line></pattern>
+              <pattern id="pt2" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="1.2" fill="rgba(27,26,23,.3)"></circle></pattern>
+              <pattern id="pt3" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><line x1="0" y1="0" x2="0" y2="7" stroke="rgba(255,255,255,.42)" stroke-width="2.4"></line></pattern>
+              <pattern id="pt4" width="6" height="6" patternUnits="userSpaceOnUse"><line x1="1" y1="0" x2="1" y2="6" stroke="rgba(27,26,23,.26)" stroke-width="1.8"></line></pattern>
+              <pattern id="pt5" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="4" cy="4" r="1.1" fill="rgba(27,26,23,.22)"></circle></pattern>
+              <pattern id="pt6" width="7" height="7" patternUnits="userSpaceOnUse"><path d="M0 0 L7 7 M7 0 L0 7" stroke="rgba(255,255,255,.4)" stroke-width="1.4"></path></pattern>
+              <pattern id="pt7" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="9" stroke="rgba(255,255,255,.5)" stroke-width="2.2"></line></pattern>
+              <pattern id="pt8" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><line x1="0" y1="0" x2="0" y2="5" stroke="rgba(255,255,255,.46)" stroke-width="2"></line></pattern>
+            </defs>
+            <sc-for list="{{ gridY }}" as="g" hint-placeholder-count="4">
+              <line x1="58" x2="984" y1="{{ g.y }}" y2="{{ g.y }}" stroke="#E7E1D7" stroke-width="1"></line>
+              <text x="50" y="{{ g.ty }}" text-anchor="end" style="font-size:10.5px;font-family:'IBM Plex Mono',monospace;fill:#9A9086">{{ g.label }}</text>
+            </sc-for>
+            <sc-for list="{{ heroBands }}" as="b" hint-placeholder-count="9">
+              <path d="{{ b.d }}" fill="{{ b.fill }}"></path>
+              <path d="{{ b.d }}" fill="{{ b.pat }}"></path>
+            </sc-for>
+            <path d="{{ demandPath }}" fill="none" stroke="#FBF9F5" stroke-width="4" stroke-linejoin="round"></path>
+            <path d="{{ demandPath }}" fill="none" stroke="#1B1A17" stroke-width="1.7" stroke-linejoin="round" stroke-dasharray="{{ demandDash }}"></path>
+            <sc-for list="{{ heroLabels }}" as="l" hint-placeholder-count="5">
+              <text x="{{ l.x }}" y="{{ l.y }}" text-anchor="middle" style="font-size:11.5px;font-weight:500;font-family:'IBM Plex Sans',sans-serif;fill:{{ l.color }};paint-order:stroke;stroke:{{ l.halo }};stroke-width:3px;stroke-linejoin:round">{{ l.text }}</text>
+            </sc-for>
+            <sc-for list="{{ xTicks }}" as="x" hint-placeholder-count="9">
+              <text x="{{ x.x }}" y="382" text-anchor="middle" style="font-size:10.5px;font-family:'IBM Plex Mono',monospace;fill:#9A9086">{{ x.label }}</text>
+            </sc-for>
+            <line x1="58" x2="984" y1="360" y2="360" stroke="#CFC7B9" stroke-width="1"></line>
+            <line x1="{{ peakX }}" x2="{{ peakX }}" y1="24" y2="360" stroke="#B4653C" stroke-width="1" stroke-dasharray="3 3"></line>
+            <text x="{{ peakLabelX }}" y="20" text-anchor="{{ peakAnchor }}" style="font-size:11px;font-weight:500;font-family:'IBM Plex Mono',monospace;fill:#B4653C">{{ peakLabel }}</text>
+            <g style="opacity:{{ hoverOn }}">
+              <line x1="{{ hoverX }}" x2="{{ hoverX }}" y1="24" y2="360" stroke="#1B1A17" stroke-width="1"></line>
+              <circle cx="{{ hoverX }}" cy="{{ hoverY }}" r="3.4" fill="#1B1A17"></circle>
+            </g>
+          </svg>
+
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-top:1px solid #EDE7DD;margin-top:8px;padding-top:11px">
+            <div style="font:500 12px/1 'IBM Plex Mono',monospace;background:#F0EBE2;border:1px solid #E2DCD2;border-radius:4px;padding:5px 8px">{{ readTime }}</div>
+            <div style="font-size:11.5px;color:#6E6459">Demand <b style="font-family:'IBM Plex Mono',monospace">{{ readDemand }}</b> MW</div>
+            <div style="flex:1"></div>
+            <sc-for list="{{ readRows }}" as="r" hint-placeholder-count="9">
+              <div style="display:flex;align-items:center;gap:5px">
+                <span style="width:9px;height:9px;border-radius:2px;background:{{ r.color }};display:inline-block;flex:none"></span>
+                <span style="font-size:11px;color:#6E6459">{{ r.name }}</span>
+                <span style="font:500 11.5px/1 'IBM Plex Mono',monospace">{{ r.mw }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <sc-if value="{{ isMulti }}" hint-placeholder-val="{{ false }}">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px">
+            <sc-for list="{{ smalls }}" as="s" hint-placeholder-count="3">
+              <div style="background:#FBF9F5;border:1px solid #E2DCD2;border-radius:7px;padding:14px 15px 10px">
+                <div style="display:flex;align-items:baseline;justify-content:space-between">
+                  <div style="font:600 13px/1.3 'IBM Plex Sans',sans-serif">{{ s.title }}</div>
+                  <div style="font:500 11.5px/1 'IBM Plex Mono',monospace;color:{{ s.color }}">{{ s.cost }}</div>
+                </div>
+                <div style="font-size:11.5px;line-height:1.5;color:#6E6459;margin-top:4px;min-height:34px">{{ s.note }}</div>
+                <svg viewBox="0 0 340 150" style="width:100%;height:auto;display:block;margin-top:4px">
+                  <sc-for list="{{ s.bands }}" as="b" hint-placeholder-count="9">
+                    <path d="{{ b.d }}" fill="{{ b.fill }}"></path>
+                    <path d="{{ b.d }}" fill="{{ b.pat }}"></path>
+                  </sc-for>
+                  <path d="{{ s.demand }}" fill="none" stroke="#1B1A17" stroke-width="1.2"></path>
+                  <line x1="4" x2="336" y1="140" y2="140" stroke="#CFC7B9" stroke-width="1"></line>
+                </svg>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isDiff }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#FBF9F5;border:1px solid #E2DCD2;border-radius:7px;padding:18px 20px 14px;margin-bottom:18px">
+            <div style="font:600 15px/1.3 'IBM Plex Sans',sans-serif">Where the extra cost occurred</div>
+            <div style="font-size:12px;line-height:1.5;color:#6E6459;margin-top:3px;max-width:52em">Cost of what ran, minus cost of the optimal schedule, per 15-minute interval. Above the line is money the optimiser says was avoidable.</div>
+            <svg viewBox="0 0 1000 240" style="width:100%;height:auto;display:block;margin-top:10px">
+              <path d="{{ diffPath }}" fill="#B4653C" fill-opacity="0.5"></path>
+              <path d="{{ diffPathNeg }}" fill="#3F8F62" fill-opacity="0.5"></path>
+              <line x1="58" x2="984" y1="{{ diffZeroY }}" y2="{{ diffZeroY }}" stroke="#1B1A17" stroke-width="1"></line>
+              <sc-for list="{{ diffTicks }}" as="g" hint-placeholder-count="3">
+                <text x="50" y="{{ g.ty }}" text-anchor="end" style="font-size:10.5px;font-family:'IBM Plex Mono',monospace;fill:#9A9086">{{ g.label }}</text>
+                <line x1="58" x2="984" y1="{{ g.y }}" y2="{{ g.y }}" stroke="#EDE7DD" stroke-width="1"></line>
+              </sc-for>
+              <sc-for list="{{ xTicks }}" as="x" hint-placeholder-count="9">
+                <text x="{{ x.x }}" y="232" text-anchor="middle" style="font-size:10.5px;font-family:'IBM Plex Mono',monospace;fill:#9A9086">{{ x.label }}</text>
+              </sc-for>
+            </svg>
+          </div>
+        </sc-if>
+
+        <div style="background:#FBF9F5;border:1px solid #E2DCD2;border-radius:7px;overflow:hidden">
+          <div style="padding:14px 18px 10px">
+            <div style="font:600 14px/1.3 'IBM Plex Sans',sans-serif">Generation mix, and what each fuel is assumed to cost</div>
+            <div style="font-size:12px;line-height:1.5;color:#6E6459;margin-top:3px">Bands carry a texture as well as a colour, so the chart survives being printed in grey or read by a colour-blind operator.</div>
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+            <thead>
+              <tr style="background:#F3EFE7">
+                <th style="text-align:left;padding:7px 18px;font:500 10px/1.4 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#8C8378;border-top:1px solid #E2DCD2;border-bottom:1px solid #E2DCD2">Fuel</th>
+                <th style="text-align:right;padding:7px 12px;font:500 10px/1.4 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#8C8378;border-top:1px solid #E2DCD2;border-bottom:1px solid #E2DCD2">Actual MWh</th>
+                <th style="text-align:right;padding:7px 12px;font:500 10px/1.4 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#8C8378;border-top:1px solid #E2DCD2;border-bottom:1px solid #E2DCD2">Optimal MWh</th>
+                <th style="text-align:right;padding:7px 12px;font:500 10px/1.4 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#8C8378;border-top:1px solid #E2DCD2;border-bottom:1px solid #E2DCD2">Δ</th>
+                <th style="text-align:right;padding:7px 12px;font:500 10px/1.4 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#8C8378;border-top:1px solid #E2DCD2;border-bottom:1px solid #E2DCD2">Share</th>
+                <th style="text-align:right;padding:7px 18px;font:500 10px/1.4 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#8C8378;border-top:1px solid #E2DCD2;border-bottom:1px solid #E2DCD2">≈ Rs/kWh</th>
+              </tr>
+            </thead>
+            <tbody>
+              <sc-for list="{{ mixRows }}" as="m" hint-placeholder-count="9">
+                <tr>
+                  <td style="padding:7px 18px;border-bottom:1px solid #EDE7DD">
+                    <span style="display:inline-flex;align-items:center;gap:8px">
+                      <svg viewBox="0 0 16 12" style="width:16px;height:12px;flex:none">
+                        <rect x="0" y="0" width="16" height="12" rx="2" fill="{{ m.color }}"></rect>
+                        <rect x="0" y="0" width="16" height="12" rx="2" fill="{{ m.pat }}"></rect>
+                      </svg>
+                      {{ m.name }}
+                    </span>
+                  </td>
+                  <td style="padding:7px 12px;text-align:right;font-family:'IBM Plex Mono',monospace;border-bottom:1px solid #EDE7DD">{{ m.actual }}</td>
+                  <td style="padding:7px 12px;text-align:right;font-family:'IBM Plex Mono',monospace;color:#6E6459;border-bottom:1px solid #EDE7DD">{{ m.opt }}</td>
+                  <td style="padding:7px 12px;text-align:right;font-family:'IBM Plex Mono',monospace;color:{{ m.dcolor }};border-bottom:1px solid #EDE7DD">{{ m.delta }}</td>
+                  <td style="padding:7px 12px;text-align:right;font-family:'IBM Plex Mono',monospace;color:#6E6459;border-bottom:1px solid #EDE7DD">{{ m.share }}</td>
+                  <td style="padding:7px 18px;text-align:right;font-family:'IBM Plex Mono',monospace;color:#8C8378;border-bottom:1px solid #EDE7DD">{{ m.price }}</td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+          <div style="padding:10px 18px;font-size:11.5px;line-height:1.55;color:#8C8378;background:#F8F5EF">The day-ahead plan covers 43,304 MWh against 53,584 MWh actually delivered — rooftop solar is not scheduled, so plan and actual are not like-for-like on energy. Comparisons on this screen are actual against optimal.</div>
+        </div>
+        </sc-if>
+      </section>
+      </sc-if>
+
+      <sc-if value="{{ isSandbox }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="02 Rule Sandbox" style="padding:26px 30px 70px">
+        <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#9A9086">Screen 02 — rule sandbox</div>
+        <h2 style="font:400 24px/1.35 'IBM Plex Serif',serif;margin:12px 0 4px;max-width:22em">Change a scheduling rule and the whole day re-solves.</h2>
+        <p style="font-size:13px;line-height:1.6;color:#6E6459;max-width:46em;margin:0 0 20px">Every control below is a real input to the solver, not a filter on a stored answer. Moving one re-runs a merit-order commitment and dispatch across all 96 intervals, then re-draws. Results are <span style="font-family:'IBM Plex Mono',monospace">≈</span> illustrative — the rules are real, the prices are assumed.</p>
+
+        <div style="display:grid;grid-template-columns:minmax(268px,300px) minmax(0,1fr);gap:18px;align-items:start">
+
+          <div style="background:#FBF9F5;border:1px solid #E2DCD2;border-radius:7px;padding:16px 17px 18px;position:sticky;top:0">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+              <div style="font:600 13px/1 'IBM Plex Sans',sans-serif">Rules</div>
+              <button onClick="{{ resetRules }}" style="border:1px solid #E2DCD2;background:#F3EFE7;border-radius:4px;cursor:pointer;font:500 11px/1 'IBM Plex Sans',sans-serif;padding:6px 9px;color:#6E6459">Reset</button>
+            </div>
+
+            <div style="padding-bottom:14px;border-bottom:1px solid #EDE7DD">
+              <div style="display:flex;justify-content:space-between;align-items:baseline">
+                <label style="font:500 12.5px/1.3 'IBM Plex Sans',sans-serif">Reserve margin</label>
+                <span style="font:500 12px/1 'IBM Plex Mono',monospace">{{ reserveLabel }}</span>
+              </div>
+              <input type="range" min="0" max="25" step="1" value="{{ reservePct }}" onChange="{{ setReserve }}" style="width:100%;margin:8px 0 3px" />
+              <div style="font-size:11px;line-height:1.5;color:#8C8378">Spare capacity kept spinning above demand, so the loss of one machine does not drop the frequency. Higher means safer and more expensive.</div>
+            </div>
+
+            <div style="padding:14px 0;border-bottom:1px solid #EDE7DD">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <label style="font:500 12.5px/1.3 'IBM Plex Sans',sans-serif">Minimum synchronous units</label>
+                <div style="display:flex;align-items:center;gap:2px;border:1px solid #E2DCD2;border-radius:4px;overflow:hidden">
+                  <button onClick="{{ syncDown }}" style="border:0;background:#F3EFE7;cursor:pointer;width:24px;height:24px;font-size:14px;line-height:1;color:#1B1A17">−</button>
+                  <span style="font:500 12px/1 'IBM Plex Mono',monospace;width:22px;text-align:center">{{ minSync }}</span>
+                  <button onClick="{{ syncUp }}" style="border:0;background:#F3EFE7;cursor:pointer;width:24px;height:24px;font-size:14px;line-height:1;color:#1B1A17">+</button>
+                </div>
+              </div>
+              <div style="font-size:11px;line-height:1.5;color:#8C8378;margin-top:7px">The number of heavy spinning machines that must stay connected at all times. Their rotating mass resists sudden frequency change — the rule tightened after 9 February 2025.</div>
+            </div>
+
+            <div style="padding:14px 0;border-bottom:1px solid #EDE7DD">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+                <label style="font:500 12.5px/1.3 'IBM Plex Sans',sans-serif">Enforce minimum up / down times</label>
+                <button onClick="{{ toggleMud }}" style="border:1px solid #DAD2C5;background:{{ mudBg }};width:38px;height:22px;border-radius:11px;cursor:pointer;padding:0;position:relative;flex:none">
+                  <span style="position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#FBF9F5;box-shadow:0 1px 2px rgba(0,0,0,.2);transform:translateX({{ mudX }}px);transition:transform .18s"></span>
+                </button>
+              </div>
+              <div style="font-size:11px;line-height:1.5;color:#8C8378;margin-top:7px">Plants have memory. A coal unit that starts must run for hours; once stopped it must stay off. Switch this off and the solver gets an unrealistically cheap answer.</div>
+            </div>
+
+            <div style="padding:14px 0;border-bottom:1px solid #EDE7DD">
+              <div style="font:500 12.5px/1.3 'IBM Plex Sans',sans-serif;margin-bottom:3px">Fuel price multipliers</div>
+              <div style="font-size:11px;line-height:1.5;color:#8C8378;margin-bottom:10px">Prices move. Scale one fuel and watch the merit order re-rank.</div>
+              <sc-for list="{{ multRows }}" as="m" hint-placeholder-count="4">
+                <div style="margin-bottom:9px">
+                  <div style="display:flex;justify-content:space-between;align-items:baseline">
+                    <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px">
+                      <span style="width:9px;height:9px;border-radius:2px;background:{{ m.color }};display:inline-block"></span>{{ m.name }}
+                    </span>
+                    <span style="font:500 11.5px/1 'IBM Plex Mono',monospace;color:{{ m.color2 }}">{{ m.label }}</span>
+                  </div>
+                  <input type="range" min="0.5" max="2" step="0.05" value="{{ m.value }}" onChange="{{ m.onChange }}" style="width:100%;margin-top:4px" />
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="padding-top:14px">
+              <div style="display:flex;justify-content:space-between;align-items:baseline">
+                <div style="font:500 12.5px/1.3 'IBM Plex Sans',sans-serif">Plant outages</div>
+                <span style="font-size:11px;color:#8C8378">{{ outCount }}</span>
+              </div>
+              <div style="font-size:11px;line-height:1.5;color:#8C8378;margin:3px 0 9px">Take a unit out and the rest of the fleet has to cover it.</div>
+              <div style="max-height:186px;overflow-y:auto;border:1px solid #EDE7DD;border-radius:5px">
+                <sc-for list="{{ plantRows }}" as="p" hint-placeholder-count="10">
+                  <button onClick="{{ p.toggle }}" style="display:flex;width:100%;align-items:center;gap:8px;border:0;border-bottom:1px solid #F1ECE3;background:{{ p.bg }};cursor:pointer;padding:6px 9px;text-align:left">
+                    <span style="width:11px;height:11px;border-radius:2px;border:1px solid {{ p.box }};background:{{ p.boxBg }};flex:none"></span>
+                    <span style="font-size:11.5px;flex:1;color:{{ p.text }};text-decoration:{{ p.strike }}">{{ p.name }}</span>
+                    <span style="font:400 10.5px/1 'IBM Plex Mono',monospace;color:#9A9086">{{ p.cap }}</span>
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:#E2DCD2;border:1px solid #E2DCD2;border-radius:7px;overflow:hidden;margin-bottom:16px">
+              <sc-for list="{{ sbTiles }}" as="t" hint-placeholder-count="4">
+                <div style="background:#FBF9F5;padding:13px 15px 14px">
+                  <div style="font:400 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#9A9086">{{ t.label }}</div>
+                  <div style="display:flex;align-items:baseline;gap:5px;margin-top:8px">
+                    <span style="font:500 24px/1 'IBM Plex Sans',sans-serif;letter-spacing:-.02em">{{ t.value }}</span>
+                    <span style="font-size:12px;color:#8C8378">{{ t.unit }}</span>
+                  </div>
+                  <div style="font:500 11.5px/1 'IBM Plex Mono',monospace;color:{{ t.color }};margin-top:8px">{{ t.delta }}</div>
+                  <div style="font-size:10.5px;color:#9A9086;margin-top:4px">{{ t.deltaNote }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="background:#FBF9F5;border:1px solid #E2DCD2;border-radius:7px;padding:16px 18px 12px">
+              <div style="font:600 14px/1.3 'IBM Plex Sans',sans-serif">Re-solved schedule</div>
+              <div style="font-size:12px;line-height:1.5;color:#6E6459;margin-top:3px">The thin line is the recorded optimal run for the same day; the bands are your scenario.</div>
+              <svg viewBox="0 0 1000 380" style="width:100%;height:auto;display:block;margin-top:8px">
+                <sc-for list="{{ gridY }}" as="g" hint-placeholder-count="4">
+                  <line x1="58" x2="984" y1="{{ g.y }}" y2="{{ g.y }}" stroke="#E7E1D7" stroke-width="1"></line>
+                  <text x="50" y="{{ g.ty }}" text-anchor="end" style="font-size:10.5px;font-family:'IBM Plex Mono',monospace;fill:#9A9086">{{ g.label }}</text>
+                </sc-for>
+                <sc-for list="{{ sbBands }}" as="b" hint-placeholder-count="9">
+                  <path d="{{ b.d }}" fill="{{ b.fill }}" style="transition:d .35s ease"></path>
+                  <path d="{{ b.d }}" fill="{{ b.pat }}" style="transition:d .35s ease"></path>
+                </sc-for>
+                <path d="{{ sbCurtailPath }}" fill="none" stroke="#C8A32B" stroke-width="2" stroke-dasharray="2 3"></path>
+                <path d="{{ sbRefPath }}" fill="none" stroke="#1B1A17" stroke-width="1.4" stroke-dasharray="4 3" stroke-opacity=".55"></path>
+                <path d="{{ demandPath }}" fill="none" stroke="#1B1A17" stroke-width="1.7"></path>
+                <sc-for list="{{ xTicks }}" as="x" hint-placeholder-count="9">
+                  <text x="{{ x.x }}" y="378" text-anchor="middle" style="font-size:10.5px;font-family:'IBM Plex Mono',monospace;fill:#9A9086">{{ x.label }}</text>
+                </sc-for>
+                <line x1="58" x2="984" y1="356" y2="356" stroke="#CFC7B9" stroke-width="1"></line>
+              </svg>
+              <div style="border-top:1px solid #EDE7DD;margin-top:6px;padding-top:10px;font-size:11.5px;line-height:1.6;color:#6E6459">{{ sbNarrative }}</div>
+            </div>
+          </div>
+        </div>
+      </section>
+      </sc-if>
+
+      <sc-if value="{{ isSearch }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="03 Watch It Search" style="padding:26px 30px 70px;max-width:1180px">
+        <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#9A9086">Screen 03 — recorded search replay</div>
+        <h2 style="font:400 24px/1.35 'IBM Plex Serif',serif;margin:12px 0 4px;max-width:24em">The solver does not walk straight downhill. Sometimes it accepts a worse schedule on purpose.</h2>
+        <p style="font-size:13px;line-height:1.6;color:#6E6459;max-width:48em;margin:0 0 18px">This is a replay of a run that already finished — 400 recorded iterations of simulated annealing, played back. Each step swaps a commitment decision. If the swap is cheaper it is kept; if it is dearer it is <span style="color:#B4653C;font-weight:600">still sometimes kept</span>, with a probability that falls as the temperature drops. That is what stops the search settling into the first passable answer it finds.</p>
+
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) 268px;gap:16px;align-items:start">
+          <div style="background:#FBF9F5;border:1px solid #E2DCD2;border-radius:7px;padding:16px 18px 12px">
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px">
+              <button onClick="{{ toggleRun }}" style="border:1px solid #1B1A17;background:#1B1A17;color:#FBF9F5;border-radius:5px;cursor:pointer;font:500 12px/1 'IBM Plex Sans',sans-serif;padding:9px 16px;min-width:76px">{{ runLabel }}</button>
+              <button onClick="{{ stepOne }}" style="border:1px solid #DAD2C5;background:#F3EFE7;border-radius:5px;cursor:pointer;font:500 12px/1 'IBM Plex Sans',sans-serif;padding:9px 13px;color:#1B1A17">Step</button>
+              <button onClick="{{ resetRun }}" style="border:1px solid #DAD2C5;background:#F3EFE7;border-radius:5px;cursor:pointer;font:500 12px/1 'IBM Plex Sans',sans-serif;padding:9px 13px;color:#1B1A17">Reset</button>
+              <div style="display:flex;align-items:center;gap:8px;margin-left:6px">
+                <span style="font:400 10px/1 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#9A9086">Speed</span>
+                <input type="range" min="1" max="24" step="1" value="{{ speed }}" onChange="{{ setSpeed }}" style="width:96px" />
+                <span style="font:500 11px/1 'IBM Plex Mono',monospace;color:#6E6459;width:36px">{{ speedLabel }}</span>
+              </div>
+              <div style="flex:1"></div>
+              <div style="font:500 12px/1 'IBM Plex Mono',monospace;color:#6E6459">iter {{ iterLabel }}</div>
+            </div>
+
+            <svg viewBox="0 0 1000 300" style="width:100%;height:auto;display:block">
+              <sc-for list="{{ cvGrid }}" as="g" hint-placeholder-count="4">
+                <line x1="66" x2="984" y1="{{ g.y }}" y2="{{ g.y }}" stroke="#E7E1D7" stroke-width="1"></line>
+                <text x="58" y="{{ g.ty }}" text-anchor="end" style="font-size:10.5px;font-family:'IBM Plex Mono',monospace;fill:#9A9086">{{ g.label }}</text>
+              </sc-for>
+              <path d="{{ cvGhost }}" fill="none" stroke="#E0D8CA" stroke-width="1"></path>
+              <path d="{{ cvPath }}" fill="none" stroke="#8C8378" stroke-width="1.2"></path>
+              <path d="{{ cvBest }}" fill="none" stroke="#1B1A17" stroke-width="2"></path>
+              <sc-for list="{{ cvWorse }}" as="w" hint-placeholder-count="6">
+                <circle cx="{{ w.x }}" cy="{{ w.y }}" r="3" fill="#FBF9F5" stroke="#B4653C" stroke-width="1.4"></circle>
+              </sc-for>
+              <circle cx="{{ cvHeadX }}" cy="{{ cvHeadY }}" r="4.4" fill="#1B1A17"></circle>
+              <text x="66" y="292" style="font-size:10.5px;font-family:'IBM Plex Mono',monospace;fill:#9A9086">iteration 0</text>
+              <text x="984" y="292" text-anchor="end" style="font-size:10.5px;font-family:'IBM Plex Mono',monospace;fill:#9A9086">400</text>
+              <line x1="66" x2="984" y1="272" y2="272" stroke="#CFC7B9" stroke-width="1"></line>
+            </svg>
+
+            <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+              <span style="font:400 10px/1 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#9A9086;width:82px">Temperature</span>
+              <div style="flex:1;height:6px;background:#EDE7DD;border-radius:3px;overflow:hidden">
+                <div style="height:6px;background:#B4653C;width:{{ tempPct }}%;transition:width .12s linear"></div>
+              </div>
+              <span style="font:500 11px/1 'IBM Plex Mono',monospace;color:#6E6459;width:44px;text-align:right">{{ tempLabel }}</span>
+            </div>
+
+            <div style="display:flex;gap:18px;border-top:1px solid #EDE7DD;margin-top:11px;padding-top:10px;flex-wrap:wrap">
+              <div style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:#6E6459"><span style="width:16px;height:2px;background:#1B1A17;display:inline-block"></span>Best schedule so far</div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:#6E6459"><span style="width:16px;height:2px;background:#8C8378;display:inline-block"></span>Schedule currently being tested</div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:#6E6459"><span style="width:9px;height:9px;border-radius:50%;border:1.5px solid #B4653C;display:inline-block"></span>A worse schedule deliberately accepted</div>
+            </div>
+          </div>
+
+          <div>
+            <div style="background:#FBF9F5;border:1px solid #E2DCD2;border-radius:7px;padding:15px 16px">
+              <div style="font:400 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#9A9086">Best cost found</div>
+              <div style="display:flex;align-items:baseline;gap:5px;margin-top:9px">
+                <span style="font:500 30px/1 'IBM Plex Sans',sans-serif;letter-spacing:-.02em">{{ bestCost }}</span>
+                <span style="font-size:12px;color:#8C8378">≈ Rs m</span>
+              </div>
+              <div style="font:500 12px/1 'IBM Plex Mono',monospace;color:#3F8F62;margin-top:8px">{{ bestDelta }}</div>
+              <div style="font-size:11px;line-height:1.5;color:#9A9086;margin-top:4px">below the starting schedule</div>
+              <div style="border-top:1px solid #EDE7DD;margin-top:12px;padding-top:11px;display:grid;grid-template-columns:1fr auto;gap:6px 10px;font-size:11.5px;color:#6E6459">
+                <span>Uphill moves accepted</span><span style="font-family:'IBM Plex Mono',monospace;color:#B4653C">{{ worseCount }}</span>
+                <span>Improvements kept</span><span style="font-family:'IBM Plex Mono',monospace">{{ betterCount }}</span>
+                <span>Iterations replayed</span><span style="font-family:'IBM Plex Mono',monospace">{{ iterLabel }}</span>
+              </div>
+            </div>
+
+            <div style="background:#FBF9F5;border:1px solid #E2DCD2;border-radius:7px;padding:15px 16px;margin-top:14px">
+              <div style="font:400 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#9A9086;margin-bottom:8px">Schedule at this iteration</div>
+              <svg viewBox="0 0 240 130" style="width:100%;height:auto;display:block">
+                <sc-for list="{{ srBands }}" as="b" hint-placeholder-count="9">
+                  <path d="{{ b.d }}" fill="{{ b.fill }}"></path>
+                  <path d="{{ b.d }}" fill="{{ b.pat }}"></path>
+                </sc-for>
+                <path d="{{ srDemand }}" fill="none" stroke="#1B1A17" stroke-width="1.1"></path>
+                <line x1="2" x2="238" y1="122" y2="122" stroke="#CFC7B9" stroke-width="1"></line>
+              </svg>
+              <div style="font-size:11px;line-height:1.5;color:#8C8378;margin-top:7px">{{ srNote }}</div>
+            </div>
+
+            <div style="background:#F3EEE3;border:1px solid #E9E0CE;border-radius:7px;padding:12px 14px;margin-top:14px;font-size:11.5px;line-height:1.6;color:#7A6E5C">
+              A full run takes minutes on a laptop, so nothing here is computed as you watch. This is a recording, played at your chosen speed.
+            </div>
+          </div>
+        </div>
+      </section>
+      </sc-if>
+
+      <sc-if value="{{ isGap }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="04 The Gap" style="padding:26px 30px 70px;max-width:1180px">
+        <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#9A9086">Screen 04 — audit trail</div>
+        <h2 style="font:400 24px/1.35 'IBM Plex Serif',serif;margin:12px 0 4px;max-width:24em">Thirty days of dispatch, and the specific decisions behind the gap.</h2>
+        <p style="font-size:13px;line-height:1.6;color:#6E6459;max-width:48em;margin:0 0 20px">Every figure below traces to a date, an interval and a named unit. Cost and CO₂ carry the <span style="font-family:'IBM Plex Mono',monospace">≈</span> mark because they use the assumed fuel prices on <a href="#" onClick="{{ go6 }}">Method</a> — the underlying generation is measured PUCSL data.</p>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#E2DCD2;border:1px solid #E2DCD2;border-radius:7px;overflow:hidden;margin-bottom:20px">
+          <sc-for list="{{ gapTiles }}" as="t" hint-placeholder-count="3">
+            <div style="background:#FBF9F5;padding:14px 16px 15px">
+              <div style="font:400 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#9A9086">{{ t.label }}</div>
+              <div style="display:flex;align-items:baseline;gap:5px;margin-top:9px">
+                <span style="font:500 27px/1 'IBM Plex Sans',sans-serif;letter-spacing:-.02em">{{ t.value }}</span>
+                <span style="font-size:12px;color:#8C8378">{{ t.unit }}</span>
+              </div>
+              <div style="font-size:11px;line-height:1.5;color:#9A9086;margin-top:8px">{{ t.note }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="background:#FBF9F5;border:1px solid #E2DCD2;border-radius:7px;padding:16px 18px 12px;margin-bottom:20px">
+          <div style="font:600 14px/1.3 'IBM Plex Sans',sans-serif">Thirty days of system cost</div>
+          <div style="font-size:12px;line-height:1.5;color:#6E6459;margin-top:3px">3 February – 4 March 2026. The area is cumulative cost of what ran; the bars beneath are each day's measured peak. The single marked point is the one day re-solved so far — its gap is the only computed one.</div>
+          <svg viewBox="0 0 1000 320" style="width:100%;height:auto;display:block;margin-top:8px">
+            <sc-for list="{{ cumGrid }}" as="g" hint-placeholder-count="4">
+              <line x1="62" x2="946" y1="{{ g.y }}" y2="{{ g.y }}" stroke="#E7E1D7" stroke-width="1"></line>
+              <text x="54" y="{{ g.ty }}" text-anchor="end" style="font-size:10.5px;font-family:'IBM Plex Mono',monospace;fill:#9A9086">{{ g.label }}</text>
+            </sc-for>
+            <path d="{{ cumArea }}" fill="#B4653C" fill-opacity=".16"></path>
+            <path d="{{ cumLine }}" fill="none" stroke="#B4653C" stroke-width="2"></path>
+            <sc-for list="{{ dayBars }}" as="b" hint-placeholder-count="30">
+              <rect x="{{ b.x }}" y="{{ b.y }}" width="{{ b.w }}" height="{{ b.h }}" fill="{{ b.fill }}" rx="1"></rect>
+            </sc-for>
+            <line x1="62" x2="946" y1="228" y2="228" stroke="#CFC7B9" stroke-width="1"></line>
+            <sc-for list="{{ cumTicks }}" as="t" hint-placeholder-count="5">
+              <text x="{{ t.x }}" y="312" text-anchor="middle" style="font-size:10.5px;font-family:'IBM Plex Mono',monospace;fill:#9A9086">{{ t.label }}</text>
+            </sc-for>
+            <circle cx="{{ solvedX }}" cy="{{ solvedY }}" r="4" fill="#FBF9F5" stroke="#B4653C" stroke-width="2"></circle>
+            <text x="952" y="{{ cumEndY }}" style="font-size:11.5px;font-weight:500;font-family:'IBM Plex Mono',monospace;fill:#1B1A17">{{ cumEndLabel }}</text>
+            <text x="952" y="300" style="font-size:10px;font-family:'IBM Plex Mono',monospace;fill:#9A9086">peak MW</text>
+          </svg>
+        </div>
+
+        <div style="background:#FBF9F5;border:1px solid #E2DCD2;border-radius:7px;overflow:hidden">
+          <div style="padding:15px 18px 11px;border-bottom:1px solid #E2DCD2">
+            <div style="font:600 14px/1.3 'IBM Plex Sans',sans-serif">Worst individual decisions · 4 March 2026</div>
+            <div style="font-size:12px;line-height:1.5;color:#6E6459;margin-top:3px">Ranked by avoidable cost. Open a row for the full statement of what was compared.</div>
+          </div>
+          <sc-for list="{{ decisions }}" as="d" hint-placeholder-count="6">
+            <div style="border-bottom:1px solid #EDE7DD">
+              <button onClick="{{ d.toggle }}" style="display:flex;width:100%;align-items:center;gap:14px;border:0;background:{{ d.bg }};cursor:pointer;padding:12px 18px;text-align:left">
+                <span style="font:500 12px/1 'IBM Plex Mono',monospace;color:#9A9086;width:16px">{{ d.rank }}</span>
+                <span style="font:500 13px/1 'IBM Plex Mono',monospace;width:48px">{{ d.time }}</span>
+                <span style="flex:1;font-size:13px;line-height:1.4">{{ d.headline }}</span>
+                <span style="font:500 13px/1 'IBM Plex Mono',monospace;color:#B4653C;width:82px;text-align:right">{{ d.cost }}</span>
+                <span style="font:400 12px/1 'IBM Plex Mono',monospace;color:#8C8378;width:74px;text-align:right">{{ d.co2 }}</span>
+                <span style="font-size:11px;color:#9A9086;width:14px;text-align:center">{{ d.chev }}</span>
+              </button>
+              <sc-if value="{{ d.open }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:2px 18px 16px 96px;background:#F8F5EF">
+                  <p style="font:400 14px/1.65 'IBM Plex Serif',serif;margin:8px 0 12px;max-width:44em">{{ d.statement }}</p>
+                  <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;max-width:720px">
+                    <div><div style="font:400 10px/1 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#9A9086">Unit started</div><div style="font-size:12.5px;margin-top:5px">{{ d.plant }}</div></div>
+                    <div><div style="font:400 10px/1 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#9A9086">Cheaper headroom at</div><div style="font-size:12.5px;margin-top:5px">{{ d.alt }}</div></div>
+                    <div><div style="font:400 10px/1 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#9A9086">Avoidable cost</div><div style="font-size:12.5px;margin-top:5px;font-family:'IBM Plex Mono',monospace;color:#B4653C">{{ d.cost }} <span style="color:#B08D4A">≈</span></div></div>
+                    <div><div style="font:400 10px/1 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#9A9086">Avoidable CO₂</div><div style="font-size:12.5px;margin-top:5px;font-family:'IBM Plex Mono',monospace">{{ d.co2 }} <span style="color:#B08D4A">≈</span></div></div>
+                  </div>
+                  <div style="font-size:11px;line-height:1.6;color:#8C8378;margin-top:12px;max-width:56em">Basis: measured 15-minute generation from the PUCSL dispatch archive; substitution cost computed with the assumed fuel prices. This row does not model transmission constraints, which may have made the substitution impossible. Cite as: Dispatch Lab, run of 25 Jul 2026, day 2026-03-04, decision rank {{ d.rank }}.</div>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+          <div style="padding:11px 18px;font-size:11.5px;line-height:1.55;color:#8C8378;background:#F8F5EF">Six decisions account for {{ decShare }} of this day's ≈ Rs {{ dayGapRsM }} m gap. The remainder is spread thinly across part-loading differences too small to attribute to a single choice.</div>
+        </div>
+      </section>
+      </sc-if>
+
+      <sc-if value="{{ isCases }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="05 Case Studies" style="padding:26px 0 90px">
+        <div style="padding:0 30px;max-width:760px">
+          <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#9A9086">Screen 05 — case studies</div>
+          <h2 style="font:400 34px/1.25 'IBM Plex Serif',serif;margin:14px 0 8px;letter-spacing:-.01em">Two days that changed how Sri Lanka schedules power</h2>
+          <p style="font-size:14px;line-height:1.7;color:#6E6459;margin:0 0 8px">Written for readers who have never thought about a power grid. No jargon that is not explained on the spot.</p>
+        </div>
+
+        <article style="padding:0 30px;max-width:760px;margin-top:38px">
+          <div style="display:flex;align-items:baseline;gap:12px">
+            <span style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#B4653C">CASE 01</span>
+            <span style="font:400 11px/1 'IBM Plex Mono',monospace;color:#9A9086">9 FEBRUARY 2025</span>
+          </div>
+          <h3 style="font:600 27px/1.3 'IBM Plex Serif',serif;margin:10px 0 14px;letter-spacing:-.01em">The Sunday the whole country went dark</h3>
+          <p style="font:400 16.5px/1.75 'IBM Plex Serif',serif;margin:0 0 16px;text-wrap:pretty">Electricity cannot be stored at scale. Whatever the country uses at 11 in the morning has to be made at 11 in the morning, to the megawatt. That balance is held by very heavy machines spinning in step with each other — turbines the size of a bus, turning fifty times a second.</p>
+          <p style="font:400 16.5px/1.75 'IBM Plex Serif',serif;margin:0 0 16px;text-wrap:pretty">Their weight is the point. When something goes wrong, all that spinning mass keeps turning for a moment and buys the grid a few seconds to react. Engineers call this <i>inertia</i>. Solar panels have none of it. They are silent, and they stop instantly.</p>
+          <p style="font:400 16.5px/1.75 'IBM Plex Serif',serif;margin:0 0 22px;text-wrap:pretty">A Sunday in February is the worst combination available: factories closed, so demand is low, and a clear sky, so solar output is high. With so much of the load met by panels, few heavy machines were needed, so few were running. When a fault hit, there was not enough spinning mass to ride through it. The grid came apart, and the country lost power for most of the day.</p>
+
+          <figure style="margin:0 0 22px;background:#FBF9F5;border:1px solid #E2DCD2;border-radius:7px;padding:16px 18px 12px">
+            <figcaption style="font:600 13px/1.4 'IBM Plex Sans',sans-serif;margin-bottom:2px">The shape of a vulnerable midday</figcaption>
+            <div style="font-size:11.5px;line-height:1.5;color:#6E6459;margin-bottom:8px">Our study day, 4 March 2026, shaded by how much of each moment came from machines with inertia. The pale band around midday is solar.</div>
+            <svg viewBox="0 0 700 220" style="width:100%;height:auto;display:block">
+              <path d="{{ caseInertiaPath }}" fill="#4A4A52" fill-opacity=".85"></path>
+              <path d="{{ caseSolarPath }}" fill="#C8A32B" fill-opacity=".55"></path>
+              <path d="{{ caseDemandPath }}" fill="none" stroke="#1B1A17" stroke-width="1.6"></path>
+              <line x1="40" x2="690" y1="196" y2="196" stroke="#CFC7B9" stroke-width="1"></line>
+              <sc-for list="{{ caseTicks }}" as="t" hint-placeholder-count="5">
+                <text x="{{ t.x }}" y="212" text-anchor="middle" style="font-size:10.5px;font-family:'IBM Plex Mono',monospace;fill:#9A9086">{{ t.label }}</text>
+              </sc-for>
+              <text x="{{ caseMidX }}" y="{{ caseMidY }}" text-anchor="middle" style="font-size:11.5px;font-weight:500;font-family:'IBM Plex Sans',sans-serif;fill:#7A6320">solar</text>
+              <text x="200" y="{{ caseInertiaLabelY }}" style="font-size:11.5px;font-weight:500;font-family:'IBM Plex Sans',sans-serif;fill:#FBF9F5">machines with inertia</text>
+            </svg>
+          </figure>
+
+          <div style="background:#F3EEE3;border-left:2px solid #B4653C;padding:16px 18px;margin-bottom:10px">
+            <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#B4653C;margin-bottom:8px">What this tool finds</div>
+            <p style="font:400 16px/1.7 'IBM Plex Serif',serif;margin:0;text-wrap:pretty">{{ caseSyncFinding }} Whether it is worth paying is a judgement for the regulator, not for a solver — but it should be a known number rather than an invisible one.</p>
+          </div>
+          <p style="font-size:11.5px;line-height:1.6;color:#9A9086;margin:0">Figure computed from the 4 March 2026 schedule with assumed fuel prices; the events of 9 February 2025 are described from public reporting and are not modelled here.</p>
+        </article>
+
+        <article style="padding:0 30px;max-width:760px;margin-top:52px">
+          <div style="display:flex;align-items:baseline;gap:12px">
+            <span style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#B4653C">CASE 02</span>
+            <span style="font:400 11px/1 'IBM Plex Mono',monospace;color:#9A9086">2025 – 2026</span>
+          </div>
+          <h3 style="font:600 27px/1.3 'IBM Plex Serif',serif;margin:10px 0 14px;letter-spacing:-.01em">Switching off free electricity, on purpose</h3>
+          <p style="font:400 16.5px/1.75 'IBM Plex Serif',serif;margin:0 0 16px;text-wrap:pretty">Since the blackout, the utility has kept more heavy machines running than demand strictly requires. Those machines have a floor: a coal unit cannot be turned down below roughly a third of its output without shutting off altogether, and shutting off means hours before it can come back.</p>
+          <p style="font:400 16.5px/1.75 'IBM Plex Serif',serif;margin:0 0 16px;text-wrap:pretty">So on a bright Sunday, the sums stop working. The floor beneath the running machines, plus everything the sun is producing, adds up to more electricity than the country wants. Something has to give, and the thing that gives is solar — farms are told to disconnect. Operators put their losses at around <b>Rs 2 billion</b>.</p>
+          <p style="font:400 16.5px/1.75 'IBM Plex Serif',serif;margin:0 0 22px;text-wrap:pretty">It is not waste through carelessness. It is the cost of a stability rule meeting an inflexible fleet. But it is a cost, it is growing, and it is worth putting a number on.</p>
+
+          <div style="background:#FBF9F5;border:1px solid #E2DCD2;border-radius:7px;padding:16px 18px;margin-bottom:22px">
+            <div style="font:600 13px/1.4 'IBM Plex Sans',sans-serif;margin-bottom:8px">Try it yourself</div>
+            <p style="font-size:13px;line-height:1.65;color:#6E6459;margin:0 0 12px">On the Rule Sandbox, raise the minimum synchronous units and watch the yellow curtailment line appear over midday. That line is solar being switched off.</p>
+            <button onClick="{{ go2 }}" style="border:1px solid #1B1A17;background:#1B1A17;color:#FBF9F5;border-radius:5px;cursor:pointer;font:500 12px/1 'IBM Plex Sans',sans-serif;padding:10px 15px">Open the Rule Sandbox →</button>
+          </div>
+
+          <div style="background:#F3EEE3;border-left:2px solid #B4653C;padding:16px 18px;margin-bottom:10px">
+            <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#B4653C;margin-bottom:8px">What this tool finds</div>
+            <p style="font:400 16px/1.7 'IBM Plex Serif',serif;margin:0;text-wrap:pretty">The curtailment is a scheduling outcome, not a solar problem. On our study day the same stability requirement can be met with a different set of machines online — one that leaves room for the sun. The gap between those two answers is the part worth arguing about.</p>
+          </div>
+          <p style="font-size:11.5px;line-height:1.6;color:#9A9086;margin:0">The Rs 2 bn figure is as reported by solar operators in public statements; it is not produced by this tool.</p>
+        </article>
+      </section>
+      </sc-if>
+
+      <sc-if value="{{ isMethod }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="06 Method" style="padding:26px 30px 70px;max-width:940px">
+        <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#9A9086">Screen 06 — method and assumptions</div>
+        <h2 style="font:400 24px/1.35 'IBM Plex Serif',serif;margin:12px 0 4px;max-width:24em">What is measured, what is assumed, and what this tool cannot see.</h2>
+        <p style="font-size:13px;line-height:1.6;color:#6E6459;max-width:46em;margin:0 0 24px">If you are here to find the flaw, this page is written for you. Everything the tool treats as fact is listed, with its source. Everything it treats as an assumption is listed too, with the value used.</p>
+
+        <div style="background:#FBF9F5;border:1px solid #E2DCD2;border-radius:7px;overflow:hidden;margin-bottom:20px">
+          <div style="padding:14px 18px 11px;border-bottom:1px solid #E2DCD2">
+            <div style="font:600 14px/1.3 'IBM Plex Sans',sans-serif">Provenance of every quantity on screen</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr">
+            <div style="padding:14px 18px;border-right:1px solid #EDE7DD">
+              <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#3F8F62;margin-bottom:9px">Measured</div>
+              <sc-for list="{{ realList }}" as="r" hint-placeholder-count="5">
+                <div style="font-size:12.5px;line-height:1.7;color:#1B1A17">{{ r }}</div>
+              </sc-for>
+              <div style="font-size:11.5px;line-height:1.6;color:#8C8378;margin-top:10px">Source: PUCSL electricity dispatch archive, gendata.pucsl.gov.lk. Timestamps converted to Asia/Colombo. Day-ahead values are published at half scale and are doubled on ingest.</div>
+            </div>
+            <div style="padding:14px 18px">
+              <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#B08D4A;margin-bottom:9px">Assumed <span style="font-family:'IBM Plex Mono',monospace">≈</span></div>
+              <sc-for list="{{ illusList }}" as="r" hint-placeholder-count="6">
+                <div style="font-size:12.5px;line-height:1.7;color:#1B1A17">{{ r }}</div>
+              </sc-for>
+              <div style="font-size:11.5px;line-height:1.6;color:#8C8378;margin-top:10px">Cost and CO₂ figures are placeholders for design purposes. Real figures require the CEB LTGEP 2025–2044 fuel cost tables. No value on this site should be quoted as a finding until that substitution is made.</div>
+              <div style="font-size:11.5px;line-height:1.6;color:#8C8378;margin-top:9px;padding-top:9px;border-top:1px solid #EDE7DD"><b style="color:#6E6459">One basis, everywhere.</b> Every rupee and tonne in this product comes from the table below, applied to measured generation. The archive's own published daily totals were rescaled by a single constant — cost ×0.915, CO₂ ×0.974 — so the one day with full interval detail reconciles exactly. An optimal cost, and therefore a gap, exists only for days that have been re-solved.</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:#FBF9F5;border:1px solid #E2DCD2;border-radius:7px;overflow:hidden;margin-bottom:20px">
+          <div style="padding:14px 18px 11px;border-bottom:1px solid #E2DCD2">
+            <div style="font:600 14px/1.3 'IBM Plex Sans',sans-serif">Fuel cost and emission assumptions</div>
+            <div style="font-size:12px;line-height:1.5;color:#6E6459;margin-top:3px">One table drives every cost and CO₂ number in the product. Change it here and the whole tool moves.</div>
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+            <thead><tr style="background:#F3EFE7">
+              <th style="text-align:left;padding:7px 18px;font:500 10px/1.4 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#8C8378;border-bottom:1px solid #E2DCD2">Fuel</th>
+              <th style="text-align:right;padding:7px 12px;font:500 10px/1.4 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#8C8378;border-bottom:1px solid #E2DCD2">Rs / kWh</th>
+              <th style="text-align:right;padding:7px 12px;font:500 10px/1.4 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#8C8378;border-bottom:1px solid #E2DCD2">t CO₂ / MWh</th>
+              <th style="text-align:right;padding:7px 12px;font:500 10px/1.4 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#8C8378;border-bottom:1px solid #E2DCD2">Start cost, Rs m</th>
+              <th style="text-align:left;padding:7px 18px;font:500 10px/1.4 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#8C8378;border-bottom:1px solid #E2DCD2">Treatment</th>
+            </tr></thead>
+            <tbody>
+              <sc-for list="{{ assumeRows }}" as="a" hint-placeholder-count="9">
+                <tr>
+                  <td style="padding:7px 18px;border-bottom:1px solid #EDE7DD"><span style="display:inline-flex;align-items:center;gap:8px"><span style="width:11px;height:11px;border-radius:2px;background:{{ a.color }};display:inline-block"></span>{{ a.name }}</span></td>
+                  <td style="padding:7px 12px;text-align:right;font-family:'IBM Plex Mono',monospace;border-bottom:1px solid #EDE7DD">{{ a.cost }}</td>
+                  <td style="padding:7px 12px;text-align:right;font-family:'IBM Plex Mono',monospace;border-bottom:1px solid #EDE7DD">{{ a.co2 }}</td>
+                  <td style="padding:7px 12px;text-align:right;font-family:'IBM Plex Mono',monospace;color:#6E6459;border-bottom:1px solid #EDE7DD">{{ a.start }}</td>
+                  <td style="padding:7px 18px;font-size:12px;color:#6E6459;border-bottom:1px solid #EDE7DD">{{ a.treat }}</td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="background:#FBF9F5;border:1px solid #E2DCD2;border-radius:7px;overflow:hidden;margin-bottom:20px">
+          <div style="padding:14px 18px 11px;border-bottom:1px solid #E2DCD2">
+            <div style="font:600 14px/1.3 'IBM Plex Sans',sans-serif">How each unit is modelled</div>
+            <div style="font-size:12px;line-height:1.5;color:#6E6459;margin-top:3px">{{ plantCountNote }}</div>
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+            <thead><tr style="background:#F3EFE7">
+              <th style="text-align:left;padding:7px 18px;font:500 10px/1.4 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#8C8378;border-bottom:1px solid #E2DCD2">Unit</th>
+              <th style="text-align:left;padding:7px 12px;font:500 10px/1.4 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#8C8378;border-bottom:1px solid #E2DCD2">Complex</th>
+              <th style="text-align:left;padding:7px 12px;font:500 10px/1.4 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#8C8378;border-bottom:1px solid #E2DCD2">Fuel</th>
+              <th style="text-align:right;padding:7px 12px;font:500 10px/1.4 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#8C8378;border-bottom:1px solid #E2DCD2">MW</th>
+              <th style="text-align:left;padding:7px 18px;font:500 10px/1.4 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#8C8378;border-bottom:1px solid #E2DCD2">Commitment</th>
+            </tr></thead>
+            <tbody>
+              <sc-for list="{{ unitRows }}" as="u" hint-placeholder-count="12">
+                <tr>
+                  <td style="padding:6px 18px;border-bottom:1px solid #EDE7DD">{{ u.name }}</td>
+                  <td style="padding:6px 12px;color:#6E6459;border-bottom:1px solid #EDE7DD">{{ u.complex }}</td>
+                  <td style="padding:6px 12px;color:#6E6459;border-bottom:1px solid #EDE7DD"><span style="display:inline-flex;align-items:center;gap:7px"><span style="width:9px;height:9px;border-radius:2px;background:{{ u.color }};display:inline-block"></span>{{ u.fuel }}</span></td>
+                  <td style="padding:6px 12px;text-align:right;font-family:'IBM Plex Mono',monospace;border-bottom:1px solid #EDE7DD">{{ u.mw }}<span style="color:#B08D4A">{{ u.mark }}</span></td>
+                  <td style="padding:6px 18px;font-size:12px;color:#6E6459;border-bottom:1px solid #EDE7DD">{{ u.commit }}</td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+          <div style="background:#FBF9F5;border:1px solid #E2DCD2;border-radius:7px;padding:16px 18px">
+            <div style="font:600 14px/1.3 'IBM Plex Sans',sans-serif;margin-bottom:10px">Algorithm and settings</div>
+            <div style="display:grid;grid-template-columns:auto 1fr;gap:7px 14px;font-size:12.5px;line-height:1.5">
+              <span style="color:#8C8378">Commitment</span><span>Merit-order heuristic, re-solved per 15-minute interval</span>
+              <span style="color:#8C8378">Refinement</span><span>Simulated annealing, 400 iterations, geometric cooling</span>
+              <span style="color:#8C8378">Start temperature</span><span style="font-family:'IBM Plex Mono',monospace">1.00 → 0.02</span>
+              <span style="color:#8C8378">Minimum stable output</span><span>35 % of nameplate for committed thermal units</span>
+              <span style="color:#8C8378">Hydro</span><span>Energy-limited; daily budget matched to measured output, allocated to the highest net-load intervals</span>
+              <span style="color:#8C8378">Runtime</span><span>Minutes. Results are precomputed; nothing on this site is live</span>
+            </div>
+          </div>
+          <div style="background:#FBF9F5;border:1px solid #E2DCD2;border-radius:7px;padding:16px 18px">
+            <div style="font:600 14px/1.3 'IBM Plex Sans',sans-serif;margin-bottom:10px">Known limitations — tell us what else is missing</div>
+            <ul style="margin:0;padding-left:18px;font-size:12.5px;line-height:1.75;color:#1B1A17">
+              <li>No transmission network. A substitution the tool proposes may be impossible on the wires.</li>
+              <li>No hydro reservoir dynamics across days. Water is budgeted within the day only.</li>
+              <li>Mini hydro, wind and rooftop solar are fleet aggregates, not individual units.</li>
+              <li>Rooftop solar output is an estimate published by CEB, not a measurement.</li>
+              <li>Ramp rates and start-up trajectories are not modelled.</li>
+              <li>Fuel prices are flat across the day and do not reflect contracts or take-or-pay terms.</li>
+            </ul>
+            <div style="margin-top:12px;padding-top:11px;border-top:1px solid #EDE7DD;font-size:11.5px;line-height:1.6;color:#8C8378">Every one of these is a reason a figure here could be wrong. If your objection is not on this list, it belongs on it.</div>
+          </div>
+        </div>
+      </section>
+      </sc-if>
+
+    </main>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showPatterns&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Accessibility&quot;},&quot;markIllustrative&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Accessibility&quot;}}">
+class Component extends DCLogic {
+  state = {
+    ready: false, screen: 1, role: 'analyst', hover: null, heroMode: 'stacked',
+    date: '2026-03-04', dateOpen: false,
+    reservePct: 8, minSync: 3, mud: true,
+    mult: { 'Coal': 1, 'Oil (CEB)': 1, 'Oil (IPP)': 1, 'Major Hydro': 1 },
+    excluded: {}, openDec: 0,
+    iter: 0, running: false, speed: 8
+  };
+
+  componentDidMount() {
+    const tick = () => {
+      if (window.DISPATCH_DATA) { this.data = window.DISPATCH_DATA; this.setState({ ready: true }); }
+      else setTimeout(tick, 40);
+    };
+    tick();
+    this._loop = null;
+  }
+  componentWillUnmount() { if (this._loop) cancelAnimationFrame(this._loop); }
+
+  // ---------- helpers ----------
+  fmt(n, d) { return Number(n).toLocaleString('en-US', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 }); }
+  sum(a) { let s = 0; for (let i = 0; i < a.length; i++) s += a[i]; return s; }
+  patFor(i) { return this.props.showPatterns === false ? 'none' : 'url(#pt' + i + ')'; }
+
+  geom(w, h, pad) { return { x: i => pad.l + (i / 95) * (w - pad.l - pad.r), y: v => h - pad.b - (v / pad.max) * (h - pad.t - pad.b) }; }
+
+  bandPaths(byFuel, g, n) {
+    const D = this.data, out = [];
+    let base = new Array(n).fill(0);
+    D.fuels.forEach((f, fi) => {
+      const arr = byFuel[f] || new Array(n).fill(0);
+      const top = base.map((b, i) => b + (arr[i] || 0));
+      let d = 'M' + g.x(0) + ' ' + g.y(top[0]);
+      for (let i = 1; i < n; i++) d += 'L' + g.x(i).toFixed(1) + ' ' + g.y(top[i]).toFixed(1);
+      for (let i = n - 1; i >= 0; i--) d += 'L' + g.x(i).toFixed(1) + ' ' + g.y(base[i]).toFixed(1);
+      out.push({ key: f, d: d + 'Z', fill: D.fuelColor[f], pat: this.patFor(fi), top, base: base.slice() });
+      base = top;
+    });
+    return out;
+  }
+  linePath(arr, g) {
+    let d = 'M' + g.x(0) + ' ' + g.y(arr[0]);
+    for (let i = 1; i < arr.length; i++) d += 'L' + g.x(i).toFixed(1) + ' ' + g.y(arr[i]).toFixed(1);
+    return d;
+  }
+  score(byFuel) {
+    const A = this.data.assumptions; let cost = 0, co2 = 0, mwh = 0;
+    this.data.fuels.forEach(f => {
+      const e = this.sum(byFuel[f] || [0]) * 0.25;
+      mwh += e; cost += e * (A.fuelCostRsPerKwh[f] || 0) / 1000; co2 += e * (A.co2TonnesPerMwh[f] || 0);
+    });
+    return { cost, co2, mwh };
+  }
+
+  // ---------- solver ----------
+  solve(o) {
+    const D = this.data, A = D.assumptions, N = 96, dem = D.day.demandMw, act = D.day.schedules.actual;
+    const excl = o.excluded, mult = f => (o.mult[f] != null ? o.mult[f] : 1);
+    const byFuel = {}; D.fuels.forEach(f => byFuel[f] = new Array(N).fill(0));
+    const fixed = new Array(N).fill(0);
+    D.plants.filter(p => !p.dispatchable).forEach(p => {
+      if (excl[p.id]) return; const a = act.byPlant[p.id] || [];
+      for (let i = 0; i < N; i++) { byFuel[p.energyType][i] += a[i] || 0; fixed[i] += a[i] || 0; }
+    });
+    const resid = dem.map((d, i) => Math.max(0, d - fixed[i]));
+
+    const hyd = D.plants.filter(p => p.energyType === 'Major Hydro' && !excl[p.id]);
+    const hydCap = hyd.reduce((s, p) => s + p.effectiveMw, 0);
+    let budget = this.sum(act.byFuel['Major Hydro']) * 0.25;
+    const order = resid.map((v, i) => [v, i]).sort((a, b) => b[0] - a[0]);
+    const hydOut = new Array(N).fill(0);
+    for (const [v, i] of order) { if (budget <= 0) break; const h = Math.min(hydCap, v, budget / 0.25); hydOut[i] = h; budget -= h * 0.25; }
+    for (let i = 0; i < N; i++) byFuel['Major Hydro'][i] = hydOut[i];
+    const r2 = resid.map((v, i) => Math.max(0, v - hydOut[i]));
+
+    const th = D.plants.filter(p => p.dispatchable && p.energyType !== 'Major Hydro' && !excl[p.id])
+      .map(p => ({ id: p.id, name: p.name, type: p.energyType, cap: p.effectiveMw, mc: (A.fuelCostRsPerKwh[p.energyType] || 0) * mult(p.energyType) }))
+      .sort((a, b) => a.mc - b.mc);
+    const on = th.map(() => new Array(N).fill(false));
+    for (let i = 0; i < N; i++) {
+      let capOn = 0, cnt = 0; const need = r2[i] * (1 + o.reserve);
+      for (let u = 0; u < th.length; u++) {
+        if (capOn >= need && cnt >= o.minSync) break;
+        on[u][i] = true; capOn += th[u].cap; cnt++;
+      }
+    }
+    if (o.mud) {
+      for (let u = 0; u < th.length; u++) {
+        if (!on[u].some(Boolean)) continue;
+        if (th[u].type === 'Coal') { on[u].fill(true); continue; }
+        for (let i = 0; i < N; i++) if (on[u][i]) { for (let k = i; k < Math.min(N, i + 4); k++) on[u][k] = true; i += 3; }
+      }
+    }
+    const MIN = 0.35, curtail = new Array(N).fill(0), unitsOn = new Array(N).fill(0);
+    const thOut = th.map(() => new Array(N).fill(0));
+    let starts = 0;
+    for (let u = 0; u < th.length; u++) for (let i = 0; i < N; i++) if (on[u][i] && !(i > 0 && on[u][i - 1])) starts += (A.startCostRsM[th[u].type] || 0);
+    for (let i = 0; i < N; i++) {
+      let minSum = 0;
+      for (let u = 0; u < th.length; u++) if (on[u][i]) { thOut[u][i] = th[u].cap * MIN; minSum += thOut[u][i]; unitsOn[i]++; }
+      if (minSum > r2[i]) {
+        let excess = minSum - r2[i];
+        for (const f of ['Rooftop Solar (Est.)', 'Solar', 'Wind']) {
+          const take = Math.min(excess, byFuel[f][i]); byFuel[f][i] -= take; excess -= take; curtail[i] += take;
+        }
+      } else {
+        let rem = r2[i] - minSum;
+        for (let u = 0; u < th.length; u++) {
+          if (!on[u][i] || rem <= 0) continue;
+          const add = Math.min(th[u].cap - thOut[u][i], rem); thOut[u][i] += add; rem -= add;
+        }
+      }
+      for (let u = 0; u < th.length; u++) if (thOut[u][i]) byFuel[th[u].type][i] += thOut[u][i];
+    }
+    let cost = 0, co2 = 0, mwh = 0, peak = 0;
+    D.fuels.forEach(f => {
+      const e = this.sum(byFuel[f]) * 0.25;
+      mwh += e; cost += e * (A.fuelCostRsPerKwh[f] || 0) * mult(f) / 1000; co2 += e * (A.co2TonnesPerMwh[f] || 0);
+    });
+    for (let i = 0; i < N; i++) { let t = 0; D.fuels.forEach(f => t += byFuel[f][i]); if (t > peak) peak = t; }
+    return { byFuel, cost: cost + starts, startCost: starts, co2, mwh, peak, curtail, unitsOn, thermalCount: th.length };
+  }
+
+  opts() { return { reserve: this.state.reservePct / 100, minSync: this.state.minSync, mud: this.state.mud, mult: this.state.mult, excluded: this.state.excluded }; }
+  baseOpts() { return { reserve: 0.08, minSync: 3, mud: true, mult: { 'Coal': 1, 'Oil (CEB)': 1, 'Oil (IPP)': 1, 'Major Hydro': 1 }, excluded: {} }; }
+
+  // ---------- search replay ----------
+  runLoop() {
+    let last = performance.now(), acc = 0;
+    const step = (t) => {
+      if (!this.state.running) { this._loop = null; return; }
+      const dt = t - last; last = t;
+      acc += dt * (this.state.speed * 0.09);
+      if (acc >= 16) {
+        const adv = Math.max(1, Math.round(acc / 16)); acc = 0;
+        const n = Math.min(399, this.state.iter + adv);
+        this.setState({ iter: n, running: n < 399 });
+      }
+      this._loop = requestAnimationFrame(step);
+    };
+    this._loop = requestAnimationFrame(step);
+  }
+
+  renderVals() {
+    const P = this.props;
+    const nav = { 1: 0, 2: 52, 3: 104, 4: 156, 5: 208, 6: 260 };
+    const roleIdx = { analyst: 0, regulator: 1, planner: 2, public: 3 };
+    const s = this.state;
+    const base = {
+      navY: nav[s.screen],
+      roleX: roleIdx[s.role] * 80,
+      setAnalyst: () => this.setState({ role: 'analyst', screen: 1 }),
+      setRegulator: () => this.setState({ role: 'regulator', screen: 4 }),
+      setPlanner: () => this.setState({ role: 'planner', screen: 6 }),
+      setPublic: () => this.setState({ role: 'public', screen: 5 }),
+      go1: () => this.setState({ screen: 1 }), go2: () => this.setState({ screen: 2 }),
+      go3: () => this.setState({ screen: 3 }), go4: () => this.setState({ screen: 4 }),
+      go5: () => this.setState({ screen: 5 }), go6: () => this.setState({ screen: 6 }),
+      isDay: s.screen === 1, isSandbox: s.screen === 2, isSearch: s.screen === 3,
+      isGap: s.screen === 4, isCases: s.screen === 5, isMethod: s.screen === 6
+    };
+    if (!s.ready) return base;
+
+    const D = this.data, N = 96, day = D.day, dem = day.demandMw;
+    const mark = P.markIllustrative === false ? '' : '≈';
+    const W = 1000, H = 400, pad = { l: 58, r: 16, t: 24, b: 40, max: 3300 };
+    const g = this.geom(W, H, pad);
+
+    // header sparkline
+    const sg = { x: i => (i / 95) * 54, y: v => 20 - (v / 3300) * 18 };
+    let sp = 'M0 ' + sg.y(dem[0]).toFixed(1);
+    for (let i = 1; i < N; i++) sp += 'L' + sg.x(i).toFixed(1) + ' ' + sg.y(dem[i]).toFixed(1);
+    const pk = dem.indexOf(Math.max(...dem));
+
+    const act = day.schedules.actual, opt = day.schedules.optimised, plan = day.schedules.planned;
+    const sa = this.score(act.byFuel), so = this.score(opt.byFuel), spl = this.score(plan.byFuel);
+
+    const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const fmtD = (iso, long) => { const p = iso.split('-'); const m = MONTHS[+p[1] - 1]; return (+p[2]) + ' ' + (long ? m : m.slice(0, 3)) + ' ' + p[0]; };
+    const hasInt = s.date === day.date;
+    const rr = D.range.find(r => r.date === s.date) || D.range[D.range.length - 1];
+    const di = D.range.findIndex(r => r.date === s.date);
+    const cmaxAll = Math.max(...D.range.map(r => r.actualCostRsM));
+    const costPct = (sa.cost - so.cost) / so.cost * 100;
+
+    const heroSrc = act.byFuel;
+    const bands = this.bandPaths(heroSrc, g, N);
+    const tot = new Array(N).fill(0); D.fuels.forEach(f => act.byFuel[f].forEach((v, i) => tot[i] += v));
+    const peakMw = Math.max(...tot);
+
+    // direct labels: thickest point of each band
+    const labels = [];
+    bands.forEach(b => {
+      let bi = -1, bt = 0;
+      for (let i = 6; i < N - 6; i++) { const t = b.top[i] - b.base[i]; if (t > bt) { bt = t; bi = i; } }
+      if (bt / pad.max * (H - pad.t - pad.b) > 24) {
+        const dark = ['Coal', 'Major Hydro', 'Oil (CEB)', 'Oil (IPP)', 'Wind', 'Biomass and Waste Heat'].indexOf(b.key) >= 0;
+        labels.push({ text: D.fuelShort[b.key], x: g.x(bi), y: (g.y(b.top[bi]) + g.y(b.base[bi])) / 2 + 4, color: dark ? '#FFFFFF' : '#3A3226', halo: dark ? 'rgba(0,0,0,.18)' : 'rgba(255,255,255,.55)' });
+      }
+    });
+
+    const gridY = [0, 1000, 2000, 3000].map(v => ({ y: g.y(v), ty: g.y(v) + 3.5, label: v === 0 ? '0' : this.fmt(v) + (v === 3000 ? ' MW' : '') }));
+    const xTicks = []; for (let i = 0; i <= 96; i += 12) xTicks.push({ x: pad.l + (Math.min(i, 95) / 95) * (W - pad.l - pad.r), label: (i === 96 ? 24 : i / 4).toString().padStart(2, '0') + ':00' });
+
+    const hi = s.hover == null ? pk : s.hover;
+    const readRows = D.fuels.map((f, fi) => ({ name: D.fuelShort[f], color: D.fuelColor[f], mw: this.fmt(act.byFuel[f][hi]) })).filter(r => r.mw !== '0');
+
+    // small multiples
+    const sg2 = this.geom(340, 150, { l: 4, r: 4, t: 6, b: 10, max: 3300 });
+    const mkSmall = (sch, title, sc, note, col) => ({
+      title, note, cost: mark + ' Rs ' + this.fmt(sc.cost) + ' m', color: col,
+      bands: this.bandPaths(sch.byFuel, sg2, N), demand: this.linePath(dem, sg2)
+    });
+    const smalls = [
+      mkSmall(plan, 'Day-ahead plan', spl, 'What CEB expected to run. Rooftop solar is not scheduled, so this stack is short by design.', '#8C8378'),
+      mkSmall(act, 'What ran', sa, 'The measured schedule. Note the oil wedge through the evening peak.', '#B4653C'),
+      mkSmall(opt, 'Optimal', so, 'Same demand, same fleet, cheaper commitment. More coal earlier, less oil at 19:00.', '#3F8F62')
+    ];
+
+    // difference chart
+    const A = D.assumptions;
+    const perInt = sch => { const out = new Array(N).fill(0); D.fuels.forEach(f => { const c = (A.fuelCostRsPerKwh[f] || 0) / 1000 * 0.25; sch.byFuel[f].forEach((v, i) => out[i] += v * c); }); return out; };
+    const dA = perInt(act), dO = perInt(opt), diff = dA.map((v, i) => v - dO[i]);
+    const dmax = Math.max(...diff.map(Math.abs), 0.5);
+    const dg = { x: i => 58 + (i / 95) * 926, y: v => 120 - (v / dmax) * 92 };
+    const mkDiff = (positive) => {
+      let d = 'M' + dg.x(0) + ' ' + dg.y(0);
+      for (let i = 0; i < N; i++) { const v = positive ? Math.max(0, diff[i]) : Math.min(0, diff[i]); d += 'L' + dg.x(i).toFixed(1) + ' ' + dg.y(v).toFixed(1); }
+      return d + 'L' + dg.x(95) + ' ' + dg.y(0) + 'Z';
+    };
+
+    // mix table
+    const mixRows = D.fuels.map(f => {
+      const a = this.sum(act.byFuel[f]) * 0.25, o = this.sum(opt.byFuel[f]) * 0.25, dd = a - o;
+      return {
+        name: D.fuelShort[f], color: D.fuelColor[f], pat: this.patFor(D.fuels.indexOf(f)),
+        actual: this.fmt(a), opt: this.fmt(o), delta: (dd >= 0 ? '+' : '−') + this.fmt(Math.abs(dd)),
+        dcolor: Math.abs(dd) < 1 ? '#9A9086' : (dd > 0 ? '#B4653C' : '#3F8F62'),
+        share: (a / sa.mwh * 100).toFixed(1) + '%', price: (A.fuelCostRsPerKwh[f] || 0).toFixed(2)
+      };
+    });
+
+    const out = Object.assign(base, {
+      sparkPath: sp, sparkFill: sp + 'L54 20L0 20Z', sparkPeakX: sg.x(pk), sparkPeakY: sg.y(dem[pk]),
+      peakLabel: hasInt ? this.fmt(peakMw) + ' MW · ' + day.intervals[pk] : this.fmt(rr.peakMw) + ' MW',
+      peakX: g.x(pk), peakLabelX: g.x(pk) - 8, peakAnchor: 'end',
+      dateShort: fmtD(s.date), dateLong: fmtD(s.date, true),
+      dateBadge: hasInt ? '96 × 15 min · full archive' : 'daily summary only',
+      dateBadgeColor: hasInt ? '#3F8F62' : '#B08D4A',
+      dateOpen: s.dateOpen,
+      toggleDatePicker: () => this.setState({ dateOpen: !s.dateOpen }),
+      prevDay: () => { const i = Math.max(0, di - 1); this.setState({ date: D.range[i].date, hover: null }); },
+      nextDay: () => { const i = Math.min(D.range.length - 1, di + 1); this.setState({ date: D.range[i].date, hover: null }); },
+      loadStudyDay: () => this.setState({ date: day.date, dateOpen: false, hover: null }),
+      dateRows: D.range.slice().reverse().map(r => ({
+        date: fmtD(r.date), gap: this.fmt(r.actualCostRsM),
+        barW: (r.actualCostRsM / cmaxAll) * 100, barColor: r.hasIntervals ? '#3F8F62' : '#C9C0B0',
+        dot: r.hasIntervals ? '●' : '', dotColor: '#3F8F62',
+        bg: r.date === s.date ? '#F3EEE3' : '#FFFFFF',
+        pick: () => this.setState({ date: r.date, dateOpen: false, hover: null })
+      })),
+      hasIntervals: hasInt, noIntervals: !hasInt,
+      rrCost: '≈ Rs ' + this.fmt(rr.actualCostRsM) + ' m',
+      rrCo2: '≈ ' + this.fmt(rr.co2Tonnes) + ' t', rrPeak: this.fmt(rr.peakMw) + ' MW',
+      headCostPct: costPct.toFixed(1) + '%',
+      headCo2: this.fmt(sa.co2 - so.co2) + ' t',
+      headSub: hasInt
+        ? 'Same 53,584 MWh delivered, same plants available, same 15-minute demand curve — only the commitment and dispatch decisions differ.'
+        : 'This day is held as a daily summary rather than a full 15-minute schedule, so the figures here are totals rather than a reconstruction of each decision.',
+      tiles: hasInt ? [
+        { label: 'System cost', mark, value: this.fmt(sa.cost), unit: 'Rs m', delta: '+' + this.fmt(sa.cost - so.cost) + ' Rs m', color: '#B4653C', deltaNote: 'above optimal (' + costPct.toFixed(1) + '%)' },
+        { label: 'CO₂ emitted', mark, value: this.fmt(sa.co2), unit: 't', delta: '+' + this.fmt(sa.co2 - so.co2) + ' t', color: '#B4653C', deltaNote: 'above optimal (' + ((sa.co2 - so.co2) / so.co2 * 100).toFixed(1) + '%)' },
+        { label: 'Peak demand', mark: '', value: this.fmt(peakMw), unit: 'MW', delta: day.intervals[pk], color: '#6E6459', deltaNote: 'evening peak, local time' },
+        { label: 'Reserve at peak', mark: '', value: (((7773 - peakMw) / peakMw) * 100).toFixed(0) + '%', unit: '', delta: this.fmt(7773 - peakMw) + ' MW', color: '#6E6459', deltaNote: 'installed capacity not called on' }
+      ] : [
+        { label: 'System cost', mark, value: this.fmt(rr.actualCostRsM), unit: 'Rs m', delta: 'day total', color: '#6E6459', deltaNote: 'no optimal computed for this day' },
+        { label: 'CO₂ emitted', mark, value: this.fmt(rr.co2Tonnes), unit: 't', delta: 'day total', color: '#6E6459', deltaNote: 'attribution needs interval detail' },
+        { label: 'Peak demand', mark: '', value: this.fmt(rr.peakMw), unit: 'MW', delta: 'measured', color: '#6E6459', deltaNote: 'highest 15-minute value of the day' },
+        { label: 'Reserve at peak', mark: '', value: (((7773 - rr.peakMw) / rr.peakMw) * 100).toFixed(0) + '%', unit: '', delta: this.fmt(7773 - rr.peakMw) + ' MW', color: '#6E6459', deltaNote: 'installed capacity not called on' }
+      ],
+      gridY, xTicks, heroBands: bands, heroLabels: labels,
+      demandPath: this.linePath(dem, g), demandDash: '0',
+      hoverOn: s.hover == null ? 0.35 : 1, hoverX: g.x(hi), hoverY: g.y(dem[hi]),
+      readTime: day.intervals[hi], readDemand: this.fmt(dem[hi]), readRows,
+      onHover: (e) => { const r = e.currentTarget.getBoundingClientRect(); const px = (e.clientX - r.left) / r.width * W; const i = Math.round((px - pad.l) / (W - pad.l - pad.r) * 95); if (i >= 0 && i < N) this.setState({ hover: i }); },
+      offHover: () => this.setState({ hover: null }),
+      modeStacked: () => this.setState({ heroMode: 'stacked' }), modeMulti: () => this.setState({ heroMode: 'multi' }), modeDiff: () => this.setState({ heroMode: 'diff' }),
+      mStackBg: s.heroMode === 'stacked' ? '#FFFFFF' : 'transparent', mMultiBg: s.heroMode === 'multi' ? '#FFFFFF' : 'transparent', mDiffBg: s.heroMode === 'diff' ? '#FFFFFF' : 'transparent',
+      isMulti: s.heroMode === 'multi', isDiff: s.heroMode === 'diff', smalls,
+      diffPath: mkDiff(true), diffPathNeg: mkDiff(false), diffZeroY: dg.y(0),
+      diffTicks: [dmax, 0, -dmax].map(v => ({ y: dg.y(v), ty: dg.y(v) + 3.5, label: (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(1) })),
+      mixRows
+    });
+
+    if (s.screen === 2) {
+      const r = this.solve(this.opts()), b0 = this.solve(this.baseOpts());
+      const sgb = this.geom(1000, 380, { l: 58, r: 16, t: 20, b: 44, max: 3300 });
+      const refTot = new Array(N).fill(0); D.fuels.forEach(f => opt.byFuel[f].forEach((v, i) => refTot[i] += v));
+      const curtTot = r.curtail.map((v, i) => { let t = 0; D.fuels.forEach(f => t += r.byFuel[f][i]); return t + v; });
+      const anyCurt = this.sum(r.curtail) > 1;
+      const dCost = r.cost - b0.cost, dCo2 = r.co2 - b0.co2;
+      const changed = s.reservePct !== 8 || s.minSync !== 3 || !s.mud || Object.keys(s.excluded).length > 0 || D.fuels.some(f => s.mult[f] && s.mult[f] !== 1);
+      Object.assign(out, {
+        reservePct: s.reservePct, reserveLabel: s.reservePct + '%',
+        setReserve: e => this.setState({ reservePct: +e.target.value }),
+        minSync: s.minSync, syncUp: () => this.setState({ minSync: Math.min(10, s.minSync + 1) }), syncDown: () => this.setState({ minSync: Math.max(0, s.minSync - 1) }),
+        mudBg: s.mud ? '#1B1A17' : '#E7E1D7', mudX: s.mud ? 16 : 0, toggleMud: () => this.setState({ mud: !s.mud }),
+        resetRules: () => this.setState({ reservePct: 8, minSync: 3, mud: true, mult: { 'Coal': 1, 'Oil (CEB)': 1, 'Oil (IPP)': 1, 'Major Hydro': 1 }, excluded: {} }),
+        multRows: ['Coal', 'Major Hydro', 'Oil (CEB)', 'Oil (IPP)'].map(f => ({
+          name: D.fuelShort[f], color: D.fuelColor[f], value: s.mult[f] || 1,
+          label: (s.mult[f] || 1).toFixed(2) + '×', color2: (s.mult[f] || 1) === 1 ? '#6E6459' : '#1B1A17',
+          onChange: e => { const v = +e.target.value; this.setState(st => ({ mult: Object.assign({}, st.mult, { [f]: v }) })); }
+        })),
+        outCount: Object.keys(s.excluded).length ? Object.keys(s.excluded).length + ' out' : 'all available',
+        plantRows: D.plants.filter(p => p.dispatchable).sort((a, b) => b.effectiveMw - a.effectiveMw).map(p => {
+          const off = !!s.excluded[p.id];
+          return {
+            name: p.name, cap: Math.round(p.effectiveMw) + ' MW',
+            bg: off ? '#F5F0E6' : '#FBF9F5', box: off ? '#B4653C' : '#C9C0B0', boxBg: off ? '#B4653C' : '#FFFFFF',
+            text: off ? '#9A9086' : '#1B1A17', strike: off ? 'line-through' : 'none',
+            toggle: () => this.setState(st => { const e = Object.assign({}, st.excluded); if (e[p.id]) delete e[p.id]; else e[p.id] = 1; return { excluded: e }; })
+          };
+        }),
+        sbTiles: [
+          { label: 'Scenario cost', value: this.fmt(r.cost), unit: '≈ Rs m', delta: (dCost >= 0 ? '+' : '−') + this.fmt(Math.abs(dCost)), color: Math.abs(dCost) < 1 ? '#9A9086' : (dCost > 0 ? '#B4653C' : '#3F8F62'), deltaNote: 'Rs m vs default rules' },
+          { label: 'CO₂', value: this.fmt(r.co2), unit: '≈ t', delta: (dCo2 >= 0 ? '+' : '−') + this.fmt(Math.abs(dCo2)), color: Math.abs(dCo2) < 1 ? '#9A9086' : (dCo2 > 0 ? '#B4653C' : '#3F8F62'), deltaNote: 'tonnes vs default rules' },
+          { label: 'Curtailed', value: this.fmt(this.sum(r.curtail) * 0.25), unit: 'MWh', delta: anyCurt ? 'solar switched off' : 'none', color: anyCurt ? '#B08D4A' : '#9A9086', deltaNote: anyCurt ? 'generation refused because the floor beneath running plant was too high' : 'every available MWh was used' },
+          { label: 'Start-up cost', value: this.fmt(r.startCost), unit: '≈ Rs m', delta: 'included in cost', color: '#6E6459', deltaNote: 'charged each time a unit is brought on' },
+          { label: 'Recorded optimum', value: this.fmt(so.cost), unit: '≈ Rs m', delta: 'reference, not a target', color: '#6E6459', deltaNote: 'the archived optimised run. The sandbox solver holds committed units at 35 % minimum output and charges start-up costs, which that run does not — so it lands above this line even at default rules.' }
+        ],
+        sbBands: this.bandPaths(r.byFuel, sgb, N),
+        sbRefPath: this.linePath(refTot, sgb),
+        sbCurtailPath: anyCurt ? this.linePath(curtTot, sgb) : '',
+        sbNarrative: !changed
+          ? 'Default rules: 8 % reserve, three synchronous units, minimum up and down times enforced, all plant available. This is the baseline every scenario below is measured against.'
+          : (anyCurt
+            ? 'This scenario forces ' + this.fmt(this.sum(r.curtail) * 0.25) + ' MWh of solar and wind to be switched off around midday: the minimum stable output of the machines you have required to stay online exceeds what the country was using. The dotted yellow line shows generation that was available and refused.'
+            : 'Cost moves by ' + (dCost >= 0 ? '+' : '−') + this.fmt(Math.abs(dCost)) + ' Rs m against the default rules. ' + (dCost > 0 ? 'The extra buys something — more reserve, more inertia, or cover for an outage. The question is whether it is worth it.' : 'Cheaper, but check what safety margin you have given up to get there.'))
+      });
+    }
+
+    if (s.screen === 3) {
+      const cv = D.convergence, n = s.iter + 1, cmin = 665, cmax = 775;
+      const cg = { x: i => 66 + (i / 399) * 918, y: v => 272 - ((v - cmin) / (cmax - cmin)) * 248 };
+      const mk = (key, count) => { let d = 'M' + cg.x(0) + ' ' + cg.y(cv[0][key]); for (let i = 1; i < count; i++) d += 'L' + cg.x(i).toFixed(1) + ' ' + cg.y(cv[i][key]).toFixed(1); return d; };
+      const worse = []; for (let i = 0; i < n; i++) if (cv[i].acceptedWorse) worse.push({ x: cg.x(i), y: cg.y(cv[i].cost) });
+      const prog = (cv[0].best - cv[s.iter].best) / (cv[0].best - cv[399].best);
+      const blend = {}; D.fuels.forEach(f => blend[f] = act.byFuel[f].map((v, i) => v + (opt.byFuel[f][i] - v) * prog));
+      const srg = this.geom(240, 130, { l: 2, r: 2, t: 4, b: 8, max: 3300 });
+      Object.assign(out, {
+        iterLabel: s.iter + ' / 399', runLabel: s.running ? 'Pause' : (s.iter >= 399 ? 'Replay' : 'Run'),
+        toggleRun: () => { if (s.iter >= 399 && !s.running) { this.setState({ iter: 0, running: true }, () => this.runLoop()); return; } const r = !s.running; this.setState({ running: r }, () => { if (r) this.runLoop(); }); },
+        stepOne: () => this.setState({ running: false, iter: Math.min(399, s.iter + 1) }),
+        resetRun: () => this.setState({ running: false, iter: 0 }),
+        speed: s.speed, speedLabel: s.speed + '×', setSpeed: e => this.setState({ speed: +e.target.value }),
+        cvGrid: [680, 710, 740, 770].map(v => ({ y: cg.y(v), ty: cg.y(v) + 3.5, label: this.fmt(v) })),
+        cvGhost: mk('cost', 400), cvPath: mk('cost', n), cvBest: mk('best', n), cvWorse: worse,
+        cvHeadX: cg.x(s.iter), cvHeadY: cg.y(cv[s.iter].best),
+        tempPct: cv[s.iter].temperature * 100, tempLabel: cv[s.iter].temperature.toFixed(3),
+        bestCost: this.fmt(cv[s.iter].best, 1), bestDelta: '−' + this.fmt(cv[0].best - cv[s.iter].best, 1) + ' Rs m',
+        worseCount: worse.length, betterCount: Math.max(0, s.iter - worse.length),
+        srBands: this.bandPaths(blend, srg, N), srDemand: this.linePath(dem, srg),
+        srNote: prog < 0.05 ? 'Starting point: the schedule that actually ran.' : (prog > 0.95 ? 'Converged. Coal is loaded earlier, the evening oil wedge is thinner.' : 'Oil is being displaced by coal and hydro as the search proceeds.')
+      });
+    }
+
+    if (s.screen === 4) {
+      const R = D.range, n = R.length;
+      let cum = 0; const cums = R.map(d => { cum += d.actualCostRsM; return cum; });
+      const cmax = Math.ceil(cum / 5000) * 5000 || 5000;
+      const cgx = i => 62 + (i / (n - 1)) * 884, cgy = v => 228 - (v / cmax) * 196;
+      let cl = 'M' + cgx(0) + ' ' + cgy(cums[0]); cums.forEach((v, i) => { if (i) cl += 'L' + cgx(i).toFixed(1) + ' ' + cgy(v).toFixed(1); });
+      const pmax = Math.max(...R.map(d => d.peakMw)), pmin = Math.min(...R.map(d => d.peakMw));
+      const solvedI = R.findIndex(d => d.hasIntervals);
+      const totalCost = cums[n - 1], totalCo2 = R.reduce((a, d) => a + d.co2Tonnes, 0);
+      const dayGap = sa.cost - so.cost;
+      const decSum = D.gapDecisions.reduce((a, d) => a + d.extraCostRsM, 0);
+      Object.assign(out, {
+        gapTiles: [
+          { label: 'Cost of 30 days as run', value: this.fmt(totalCost), unit: '≈ Rs m', note: '3 Feb – 4 Mar 2026, from measured generation and the assumed fuel prices.' },
+          { label: 'Gap on the day re-solved', value: '+' + costPct.toFixed(1) + '%', unit: '', note: '≈ Rs ' + this.fmt(dayGap) + ' m avoidable on 4 March. One day of thirty has been re-solved; the other 29 are not yet answerable.' },
+          { label: 'CO₂ over the period', value: this.fmt(totalCo2), unit: '≈ t', note: 'Emissions of the schedules that ran, using the assumed emission factors.' }
+        ],
+        cumGrid: [0, cmax / 2, cmax].map(v => ({ y: cgy(v), ty: cgy(v) + 3.5, label: this.fmt(v) })),
+        cumLine: cl, cumArea: cl + 'L' + cgx(n - 1) + ' ' + cgy(0) + 'L' + cgx(0) + ' ' + cgy(0) + 'Z',
+        dayBars: R.map((d, i) => { const h = 12 + ((d.peakMw - pmin) / (pmax - pmin || 1)) * 44; return { x: cgx(i) - 9, y: 296 - h, w: 18, h, fill: d.hasIntervals ? '#B4653C' : '#D3C6B2' }; }),
+        cumTicks: [0, 7, 14, 21, 29].map(i => ({ x: cgx(i), label: R[i].date.slice(5).replace('-', '/') })),
+        solvedX: cgx(solvedI), solvedY: cgy(cums[solvedI]),
+        cumEndY: cgy(cums[n - 1]) + 4, cumEndLabel: '≈ ' + this.fmt(totalCost) + ' Rs m',
+        decShare: (decSum / dayGap * 100).toFixed(0) + '%', dayGapRsM: this.fmt(dayGap),
+        decisions: D.gapDecisions.map((d, i) => ({
+          rank: i + 1, time: d.time, plant: d.plant, alt: d.alternative,
+          headline: d.plant + ' started · ' + d.alternative + ' had headroom',
+          cost: '≈ +' + d.extraCostRsM.toFixed(1) + ' m', co2: '+' + d.extraCo2Tonnes.toFixed(0) + ' t',
+          open: s.openDec === i, chev: s.openDec === i ? '▴' : '▾',
+          bg: s.openDec === i ? '#F8F5EF' : '#FBF9F5',
+          statement: 'At ' + d.time + ' on 4 March 2026, ' + d.plant + ' was brought online. ' + d.alternative + ' was already synchronised and had unused capacity sufficient to cover the same load at a lower marginal cost. Substituting the two adds an estimated Rs ' + d.extraCostRsM.toFixed(1) + ' million and ' + d.extraCo2Tonnes.toFixed(0) + ' tonnes of CO₂ to the day.',
+          toggle: () => this.setState({ openDec: s.openDec === i ? -1 : i })
+        }))
+      });
+    }
+
+    if (s.screen === 5) {
+      const cg = { x: i => 40 + (i / 95) * 650, y: v => 196 - (v / 3300) * 172 };
+      const inertia = new Array(N).fill(0), solar = new Array(N).fill(0);
+      for (let i = 0; i < N; i++) {
+        ['Coal', 'Major Hydro', 'Oil (CEB)', 'Oil (IPP)', 'Biomass and Waste Heat', 'Mini Hydro (Telemetered)'].forEach(f => inertia[i] += act.byFuel[f][i]);
+        ['Solar', 'Rooftop Solar (Est.)', 'Wind'].forEach(f => solar[i] += act.byFuel[f][i]);
+      }
+      const area = (arr, baseArr) => {
+        let d = 'M' + cg.x(0) + ' ' + cg.y(arr[0]);
+        for (let i = 1; i < N; i++) d += 'L' + cg.x(i).toFixed(1) + ' ' + cg.y(arr[i]).toFixed(1);
+        for (let i = N - 1; i >= 0; i--) d += 'L' + cg.x(i).toFixed(1) + ' ' + cg.y(baseArr ? baseArr[i] : 0).toFixed(1);
+        return d + 'Z';
+      };
+      const stacked = inertia.map((v, i) => v + solar[i]);
+      const midI = 50;
+      const tight = this.solve({ reserve: 0.08, minSync: 6, mud: true, mult: {}, excluded: {} });
+      const loose = this.solve({ reserve: 0.08, minSync: 3, mud: true, mult: {}, excluded: {} });
+      const dSync = tight.cost - loose.cost, dCurt = (this.sum(tight.curtail) - this.sum(loose.curtail)) * 0.25;
+      const syncFinding = dSync > 1
+        ? 'Re-solving 4 March 2026 with six heavy machines required online at all times, rather than three, costs about ≈ Rs ' + this.fmt(dSync) + ' m more across the day'
+          + (dCurt > 1 ? ' and forces ' + this.fmt(dCurt) + ' MWh of solar and wind to be switched off' : '')
+          + '. That is the price of the stability rule.'
+        : 'Re-solving 4 March 2026 with six heavy machines required online at all times, rather than three, costs nothing extra: demand on this day was high enough that six machines were already running on economics alone. The rule binds on low-demand days, not on this one.';
+      Object.assign(out, {
+        caseInertiaPath: area(inertia), caseSolarPath: area(stacked, inertia),
+        caseDemandPath: this.linePath(dem, cg),
+        caseTicks: [0, 24, 48, 72, 95].map(i => ({ x: cg.x(i), label: day.intervals[i] })),
+        caseMidX: cg.x(midI), caseMidY: (cg.y(stacked[midI]) + cg.y(inertia[midI])) / 2 + 4,
+        caseInertiaLabelY: cg.y(inertia[28]) + 30,
+        caseSyncFinding: syncFinding
+      });
+    }
+
+    if (s.screen === 6) {
+      const treat = { 'Coal': 'Individually committable, three units', 'Major Hydro': 'Energy-limited, budget matched to measured output', 'Mini Hydro (Telemetered)': 'Fleet aggregate, must-run', 'Wind': 'Fleet aggregate, must-run', 'Solar': 'Fleet aggregate, must-run, curtailable', 'Rooftop Solar (Est.)': 'Estimated, not scheduled, curtailable', 'Biomass and Waste Heat': 'Fleet aggregate, must-run', 'Oil (IPP)': 'Individually committable', 'Oil (CEB)': 'Individually committable' };
+      Object.assign(out, {
+        realList: ['Plant register and nameplate capacity', 'Demand, 96 × 15-minute intervals', 'Actual generation by unit', 'Day-ahead planned generation', 'Daily peak MW across the 30-day range'],
+        illusList: ['All costs in rupees', 'All CO₂ tonnages', 'The optimised schedule', 'Ranked worst decisions', 'The recorded search trace', 'Daily totals, rescaled to the table below'],
+        assumeRows: D.fuels.map(f => ({
+          name: D.fuelShort[f], color: D.fuelColor[f],
+          cost: (A.fuelCostRsPerKwh[f] || 0).toFixed(2), co2: (A.co2TonnesPerMwh[f] || 0).toFixed(2),
+          start: A.startCostRsM[f] != null ? A.startCostRsM[f].toFixed(1) : '—', treat: treat[f]
+        })),
+        plantCountNote: D.plants.length + ' units in the register. ' + D.plants.filter(p => p.dispatchable).length + ' are dispatchable; the rest are must-run or estimated. A ' + '≈' + ' on a capacity means nameplate was missing or exceeded by measured output, so observed maximum is used.',
+        unitRows: D.plants.slice().sort((a, b) => b.effectiveMw - a.effectiveMw).map(p => ({
+          name: p.name, complex: p.complex || '—', fuel: D.fuelShort[p.energyType] || p.energyType,
+          color: D.fuelColor[p.energyType] || '#9A9086', mw: this.fmt(p.effectiveMw, p.effectiveMw % 1 ? 1 : 0),
+          mark: p.capacityIsAssumed ? '≈' : '', commit: treat[p.energyType] || '—'
+        }))
+      });
+    }
+
+    return out;
+  }
+}
+</script>
+</body>
+</html>
+
