@@ -584,8 +584,8 @@
 
         <div style="background:#FBF9F5;border:1px solid #E2DCD2;border-radius:7px;overflow:hidden">
           <div style="padding:15px 18px 11px;border-bottom:1px solid #E2DCD2">
-            <div style="font:600 14px/1.3 'IBM Plex Sans',sans-serif">Worst individual decisions · 4 March 2026</div>
-            <div style="font-size:12px;line-height:1.5;color:#6E6459;margin-top:3px">Ranked by avoidable cost. Open a row for the full statement of what was compared.</div>
+            <div style="font:600 14px/1.3 'IBM Plex Sans',sans-serif">Derivation trace · 4 March 2026</div>
+            <div style="font-size:12px;line-height:1.5;color:#6E6459;margin-top:3px">Every commitment the rule engine made, in the order it made them. Open a row for the rule that caused it.</div>
           </div>
           <sc-for list="{{ decisions }}" as="d" hint-placeholder-count="6">
             <div style="border-bottom:1px solid #EDE7DD">
@@ -593,25 +593,23 @@
                 <span style="font:500 12px/1 'IBM Plex Mono',monospace;color:#9A9086;width:16px">{{ d.rank }}</span>
                 <span style="font:500 13px/1 'IBM Plex Mono',monospace;width:48px">{{ d.time }}</span>
                 <span style="flex:1;font-size:13px;line-height:1.4">{{ d.headline }}</span>
-                <span style="font:500 13px/1 'IBM Plex Mono',monospace;color:#B4653C;width:82px;text-align:right">{{ d.cost }}</span>
-                <span style="font:400 12px/1 'IBM Plex Mono',monospace;color:#8C8378;width:74px;text-align:right">{{ d.co2 }}</span>
+                <span style="font:400 12px/1 'IBM Plex Mono',monospace;color:#8C8378;width:96px;text-align:right">{{ d.interval }}</span>
                 <span style="font-size:11px;color:#9A9086;width:14px;text-align:center">{{ d.chev }}</span>
               </button>
               <sc-if value="{{ d.open }}" hint-placeholder-val="{{ false }}">
                 <div style="padding:2px 18px 16px 96px;background:#F8F5EF">
                   <p style="font:400 14px/1.65 'IBM Plex Serif',serif;margin:8px 0 12px;max-width:44em">{{ d.statement }}</p>
                   <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;max-width:720px">
-                    <div><div style="font:400 10px/1 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#9A9086">Unit started</div><div style="font-size:12.5px;margin-top:5px">{{ d.plant }}</div></div>
-                    <div><div style="font:400 10px/1 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#9A9086">Cheaper headroom at</div><div style="font-size:12.5px;margin-top:5px">{{ d.alt }}</div></div>
-                    <div><div style="font:400 10px/1 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#9A9086">Avoidable cost</div><div style="font-size:12.5px;margin-top:5px;font-family:'IBM Plex Mono',monospace;color:#B4653C">{{ d.cost }} <span style="color:#B08D4A">≈</span></div></div>
-                    <div><div style="font:400 10px/1 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#9A9086">Avoidable CO₂</div><div style="font-size:12.5px;margin-top:5px;font-family:'IBM Plex Mono',monospace">{{ d.co2 }} <span style="color:#B08D4A">≈</span></div></div>
+                    <div><div style="font:400 10px/1 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#9A9086">Unit</div><div style="font-size:12.5px;margin-top:5px">{{ d.plant }}</div></div>
+                    <div><div style="font:400 10px/1 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#9A9086">Rule fired</div><div style="font-size:12.5px;margin-top:5px;font-family:'IBM Plex Mono',monospace">{{ d.rule }}</div></div>
+                    <div style="grid-column:span 2"><div style="font:400 10px/1 'IBM Plex Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:#9A9086">Detail</div><div style="font-size:12.5px;margin-top:5px">{{ d.detail }}</div></div>
                   </div>
-                  <div style="font-size:11px;line-height:1.6;color:#8C8378;margin-top:12px;max-width:56em">Basis: measured 15-minute generation from the PUCSL dispatch archive; substitution cost computed with the assumed fuel prices. This row does not model transmission constraints, which may have made the substitution impossible. Cite as: Dispatch Lab, run of 25 Jul 2026, day 2026-03-04, decision rank {{ d.rank }}.</div>
+                  <div style="font-size:11px;line-height:1.6;color:#8C8378;margin-top:12px;max-width:56em">Basis: the rule engine's own derivation trace for this day, not a reconstruction. Each row is a commitment together with the rule that caused it. Cite as: day 2026-03-04, trace entry {{ d.rank }}.</div>
                 </div>
               </sc-if>
             </div>
           </sc-for>
-          <div style="padding:11px 18px;font-size:11.5px;line-height:1.55;color:#8C8378;background:#F8F5EF">Six decisions account for {{ decShare }} of this day's ≈ Rs {{ dayGapRsM }} m gap. The remainder is spread thinly across part-loading differences too small to attribute to a single choice.</div>
+          <div style="padding:11px 18px;font-size:11.5px;line-height:1.55;color:#8C8378;background:#F8F5EF">{{ decShare }} entries in this trace were caused by the {{ topRuleName }} rule. The day's re-solved gap is ≈ Rs {{ dayGapRsM }} m; this trace explains how the schedule was built, not how that gap decomposes.</div>
         </div>
       </section>
       </sc-if>
@@ -1176,7 +1174,8 @@ class Component extends DCLogic {
       const solvedI = R.findIndex(d => d.hasIntervals);
       const totalCost = cums[n - 1], totalCo2 = R.reduce((a, d) => a + d.co2Tonnes, 0);
       const dayGap = sa.cost - so.cost;
-      const decSum = D.gapDecisions.reduce((a, d) => a + d.extraCostRsM, 0);
+      const ruleCounts = D.gapDecisions.reduce((a, d) => { a[d.rule] = (a[d.rule] || 0) + 1; return a; }, {});
+      const topRule = Object.entries(ruleCounts).sort((a, b) => b[1] - a[1])[0] || ['', 0];
       Object.assign(out, {
         gapTiles: [
           { label: 'Cost of 30 days as run', value: this.fmt(totalCost), unit: '≈ Rs m', note: '3 Feb – 4 Mar 2026, from measured generation and the assumed fuel prices.' },
@@ -1189,14 +1188,15 @@ class Component extends DCLogic {
         cumTicks: [0, 7, 14, 21, 29].map(i => ({ x: cgx(i), label: R[i].date.slice(5).replace('-', '/') })),
         solvedX: cgx(solvedI), solvedY: cgy(cums[solvedI]),
         cumEndY: cgy(cums[n - 1]) + 4, cumEndLabel: '≈ ' + this.fmt(totalCost) + ' Rs m',
-        decShare: (decSum / dayGap * 100).toFixed(0) + '%', dayGapRsM: this.fmt(dayGap),
+        decShare: topRule[0] ? topRule[1] + ' of ' + D.gapDecisions.length : '0', dayGapRsM: this.fmt(dayGap),
+        topRuleName: topRule[0] || 'none',
         decisions: D.gapDecisions.map((d, i) => ({
-          rank: i + 1, time: d.time, plant: d.plant, alt: d.alternative,
-          headline: d.plant + ' started · ' + d.alternative + ' had headroom',
-          cost: '≈ +' + d.extraCostRsM.toFixed(1) + ' m', co2: '+' + d.extraCo2Tonnes.toFixed(0) + ' t',
+          rank: i + 1, time: d.time, plant: d.plant, rule: d.rule,
+          headline: d.plant + ' · ' + d.rule.replace(/_/g, ' '),
+          detail: d.detail || '', interval: 'interval ' + d.interval,
           open: s.openDec === i, chev: s.openDec === i ? '▴' : '▾',
           bg: s.openDec === i ? '#F8F5EF' : '#FBF9F5',
-          statement: 'At ' + d.time + ' on 4 March 2026, ' + d.plant + ' was brought online. ' + d.alternative + ' was already synchronised and had unused capacity sufficient to cover the same load at a lower marginal cost. Substituting the two adds an estimated Rs ' + d.extraCostRsM.toFixed(1) + ' million and ' + d.extraCo2Tonnes.toFixed(0) + ' tonnes of CO₂ to the day.',
+          statement: 'At ' + d.time + ' the rule ' + d.rule.replace(/_/g, ' ') + ' fired for ' + d.plant + (d.detail ? ': ' + d.detail : '') + '.',
           toggle: () => this.setState({ openDec: s.openDec === i ? -1 : i })
         }))
       });
