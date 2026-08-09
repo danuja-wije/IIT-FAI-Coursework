@@ -980,7 +980,8 @@ class Component extends DCLogic {
     const hasInt = s.date === day.date;
     const rr = D.range.find(r => r.date === s.date) || D.range[D.range.length - 1];
     const di = D.range.findIndex(r => r.date === s.date);
-    const cmaxAll = Math.max(...D.range.map(r => r.actualCostRsM));
+    // Per-day cost is not in the export; measured energy is, so the day picker ranks on that.
+    const cmaxAll = Math.max(...D.range.map(r => r.meanMw * 24));
     const costPct = (sa.cost - so.cost) / so.cost * 100;
 
     const heroSrc = act.byFuel;
@@ -1053,15 +1054,15 @@ class Component extends DCLogic {
       nextDay: () => { const i = Math.min(D.range.length - 1, di + 1); this.setState({ date: D.range[i].date, hover: null }); },
       loadStudyDay: () => this.setState({ date: day.date, dateOpen: false, hover: null }),
       dateRows: D.range.slice().reverse().map(r => ({
-        date: fmtD(r.date), gap: this.fmt(r.actualCostRsM),
-        barW: (r.actualCostRsM / cmaxAll) * 100, barColor: r.hasIntervals ? '#3F8F62' : '#C9C0B0',
+        date: fmtD(r.date), gap: this.fmt(r.meanMw * 24) + ' MWh',
+        barW: (r.meanMw * 24 / cmaxAll) * 100, barColor: r.hasIntervals ? '#3F8F62' : '#C9C0B0',
         dot: r.hasIntervals ? '●' : '', dotColor: '#3F8F62',
         bg: r.date === s.date ? '#F3EEE3' : '#FFFFFF',
         pick: () => this.setState({ date: r.date, dateOpen: false, hover: null })
       })),
       hasIntervals: hasInt, noIntervals: !hasInt,
-      rrCost: '≈ Rs ' + this.fmt(rr.actualCostRsM) + ' m',
-      rrCo2: '≈ ' + this.fmt(rr.co2Tonnes) + ' t', rrPeak: this.fmt(rr.peakMw) + ' MW',
+      rrCost: this.fmt(rr.meanMw * 24) + ' MWh',
+      rrCo2: this.fmt(rr.meanMw) + ' MW mean', rrPeak: this.fmt(rr.peakMw) + ' MW',
       headCostPct: costPct.toFixed(1) + '%',
       headCo2: this.fmt(sa.co2 - so.co2) + ' t',
       headSub: hasInt
@@ -1073,8 +1074,8 @@ class Component extends DCLogic {
         { label: 'Peak demand', mark: '', value: this.fmt(peakMw), unit: 'MW', delta: day.intervals[pk], color: '#6E6459', deltaNote: 'evening peak, local time' },
         { label: 'Reserve at peak', mark: '', value: (((7773 - peakMw) / peakMw) * 100).toFixed(0) + '%', unit: '', delta: this.fmt(7773 - peakMw) + ' MW', color: '#6E6459', deltaNote: 'installed capacity not called on' }
       ] : [
-        { label: 'System cost', mark, value: this.fmt(rr.actualCostRsM), unit: 'Rs m', delta: 'day total', color: '#6E6459', deltaNote: 'no optimal computed for this day' },
-        { label: 'CO₂ emitted', mark, value: this.fmt(rr.co2Tonnes), unit: 't', delta: 'day total', color: '#6E6459', deltaNote: 'attribution needs interval detail' },
+        { label: 'Energy delivered', mark: '', value: this.fmt(rr.meanMw * 24), unit: 'MWh', delta: 'day total', color: '#6E6459', deltaNote: 'measured; no schedule re-solved for this day' },
+        { label: 'Mean demand', mark: '', value: this.fmt(rr.meanMw), unit: 'MW', delta: 'day mean', color: '#6E6459', deltaNote: 'cost and CO2 need a re-solve, which this day has not had' },
         { label: 'Peak demand', mark: '', value: this.fmt(rr.peakMw), unit: 'MW', delta: 'measured', color: '#6E6459', deltaNote: 'highest 15-minute value of the day' },
         { label: 'Reserve at peak', mark: '', value: (((7773 - rr.peakMw) / rr.peakMw) * 100).toFixed(0) + '%', unit: '', delta: this.fmt(7773 - rr.peakMw) + ' MW', color: '#6E6459', deltaNote: 'installed capacity not called on' }
       ],
@@ -1166,28 +1167,33 @@ class Component extends DCLogic {
 
     if (s.screen === 4) {
       const R = D.range, n = R.length;
-      let cum = 0; const cums = R.map(d => { cum += d.actualCostRsM; return cum; });
-      const cmax = Math.ceil(cum / 5000) * 5000 || 5000;
+      // The export carries measured demand per day, not a per-day cost or CO2 figure, so the
+      // period view is built from energy delivered. Only one day of the thirty has been
+      // re-solved, and its cost gap is the tile beside this one.
+      let cum = 0; const cums = R.map(d => { cum += d.meanMw * 24; return cum; });
+      const cmax = Math.ceil(cum / 50000) * 50000 || 50000;
       const cgx = i => 62 + (i / (n - 1)) * 884, cgy = v => 228 - (v / cmax) * 196;
       let cl = 'M' + cgx(0) + ' ' + cgy(cums[0]); cums.forEach((v, i) => { if (i) cl += 'L' + cgx(i).toFixed(1) + ' ' + cgy(v).toFixed(1); });
       const pmax = Math.max(...R.map(d => d.peakMw)), pmin = Math.min(...R.map(d => d.peakMw));
       const solvedI = R.findIndex(d => d.hasIntervals);
-      const totalCost = cums[n - 1], totalCo2 = R.reduce((a, d) => a + d.co2Tonnes, 0);
+      const totalEnergy = cums[n - 1];
+      const periodPeak = Math.max(...R.map(d => d.peakMw));
+      const covered = R.filter(d => d.hasIntervals).length;
       const dayGap = sa.cost - so.cost;
       const ruleCounts = D.gapDecisions.reduce((a, d) => { a[d.rule] = (a[d.rule] || 0) + 1; return a; }, {});
       const topRule = Object.entries(ruleCounts).sort((a, b) => b[1] - a[1])[0] || ['', 0];
       Object.assign(out, {
         gapTiles: [
-          { label: 'Cost of 30 days as run', value: this.fmt(totalCost), unit: '≈ Rs m', note: '3 Feb – 4 Mar 2026, from measured generation and the assumed fuel prices.' },
+          { label: 'Energy delivered over 30 days', value: this.fmt(totalEnergy), unit: 'MWh', note: '3 Feb – 4 Mar 2026, integrated from the measured 15-minute generation record. A measurement, not an assumption.' },
           { label: 'Gap on the day re-solved', value: '+' + costPct.toFixed(1) + '%', unit: '', note: '≈ Rs ' + this.fmt(dayGap) + ' m avoidable on 4 March. One day of thirty has been re-solved; the other 29 are not yet answerable.' },
-          { label: 'CO₂ over the period', value: this.fmt(totalCo2), unit: '≈ t', note: 'Emissions of the schedules that ran, using the assumed emission factors.' }
+          { label: 'Peak demand in the period', value: this.fmt(periodPeak), unit: 'MW', note: covered + ' of ' + n + ' days carry a complete 15-minute record.' }
         ],
         cumGrid: [0, cmax / 2, cmax].map(v => ({ y: cgy(v), ty: cgy(v) + 3.5, label: this.fmt(v) })),
         cumLine: cl, cumArea: cl + 'L' + cgx(n - 1) + ' ' + cgy(0) + 'L' + cgx(0) + ' ' + cgy(0) + 'Z',
         dayBars: R.map((d, i) => { const h = 12 + ((d.peakMw - pmin) / (pmax - pmin || 1)) * 44; return { x: cgx(i) - 9, y: 296 - h, w: 18, h, fill: d.hasIntervals ? '#B4653C' : '#D3C6B2' }; }),
         cumTicks: [0, 7, 14, 21, 29].map(i => ({ x: cgx(i), label: R[i].date.slice(5).replace('-', '/') })),
         solvedX: cgx(solvedI), solvedY: cgy(cums[solvedI]),
-        cumEndY: cgy(cums[n - 1]) + 4, cumEndLabel: '≈ ' + this.fmt(totalCost) + ' Rs m',
+        cumEndY: cgy(cums[n - 1]) + 4, cumEndLabel: this.fmt(totalEnergy) + ' MWh',
         decShare: topRule[0] ? topRule[1] + ' of ' + D.gapDecisions.length : '0', dayGapRsM: this.fmt(dayGap),
         topRuleName: topRule[0] || 'none',
         decisions: D.gapDecisions.map((d, i) => ({
